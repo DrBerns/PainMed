@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>PainMed — New Patient Intake</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1a4fa0; --blue:#1E5FA8; --lblue:#EAF0FB;
+  --green:#2e7d32; --lgreen:#e8f5ee;
+  --red:#c0392b; --lred:#fdf3f3;
+  --gray:#5a6a7d; --lgray:#f4f6f9; --border:#cdd5e0;
+  --white:#fff; --radius:14px; --shadow:0 4px 24px rgba(26,79,160,0.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--lgray);color:#1a2535;min-height:100vh;}
+
+/* ── HEADER ── */
+.hdr{background:var(--white);border-bottom:3px solid var(--navy);position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(26,79,160,0.09);}
+.hdr-inner{max-width:860px;margin:0 auto;padding:0 20px;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{line-height:1;}
+.brand-mark .sp{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;}
+.brand-mark .me{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--green);letter-spacing:-0.5px;}
+.brand-mark .d{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;}
+.brand-sub{font-size:10.5px;color:var(--gray);margin-top:2px;letter-spacing:0.1px;}
+.hdr-right{text-align:right;}
+.hdr-step-lbl{font-size:10.5px;color:var(--gray);}
+.hdr-step-name{font-size:13.5px;font-weight:700;color:var(--navy);margin-top:1px;}
+.prog-dots{display:flex;gap:5px;padding-bottom:11px;}
+.dot{height:5px;border-radius:3px;background:var(--border);transition:all 0.35s;flex:1;}
+.dot.done{background:var(--blue);}
+.dot.active{background:var(--navy);}
+
+/* ── STEP ── */
+.step{display:none;max-width:860px;margin:24px auto;padding:0 20px 90px;}
+.step.active{display:block;animation:fadeUp 0.28s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── CARD ── */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.card-hdr{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);padding:18px 24px 14px;color:var(--white);}
+.card-hdr h2{font-family:'Libre Baskerville',serif;font-size:18px;font-weight:400;margin-bottom:3px;}
+.card-hdr p{font-size:12px;opacity:0.75;line-height:1.5;}
+.card-body{padding:20px 24px;}
+
+/* ── GRID ── */
+.fg{display:grid;gap:15px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+.g13{grid-template-columns:1fr 3fr;}
+.s2{grid-column:span 2;}
+.s3{grid-column:span 3;}
+
+/* ── FIELDS ── */
+.f{display:flex;flex-direction:column;gap:5px;}
+.f label{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.8px;}
+.f label .req{color:var(--red);margin-left:2px;}
+.fi,.fsel,.fta{
+  border:1.5px solid var(--border);border-radius:9px;
+  padding:11px 14px;font-size:15px;font-family:'DM Sans',sans-serif;
+  color:#1a2535;background:var(--lgray);outline:none;
+  transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;width:100%;
+}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--navy);background:var(--white);box-shadow:0 0 0 3px rgba(26,79,160,0.10);}
+.fta{min-height:74px;resize:vertical;}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%235a6a7d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1.5px solid var(--border);margin:18px 0;}
+.sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:11px;padding-bottom:5px;border-bottom:2px solid var(--lblue);}
+
+/* ── CHOICE BUTTONS (tap/click toggle) ── */
+.choices{display:flex;gap:8px;flex-wrap:wrap;}
+.choice{
+  padding:10px 18px;border:2px solid var(--border);border-radius:50px;
+  font-size:13.5px;font-weight:600;cursor:pointer;background:var(--lgray);
+  color:var(--gray);transition:all 0.15s;user-select:none;
+  font-family:'DM Sans',sans-serif;
+}
+.choice:hover{border-color:var(--navy);color:var(--navy);background:var(--lblue);}
+.choice.on{background:var(--navy);color:var(--white);border-color:var(--navy);}
+.choice.on-green{background:var(--green);color:var(--white);border-color:var(--green);}
+.choice.on-red{background:var(--red);color:var(--white);border-color:var(--red);}
+.choices.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.choices.grid2 .choice{border-radius:10px;text-align:center;padding:12px 10px;}
+
+/* ── CHECKBOX ITEMS ── */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.cg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;}
+.ck{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;cursor:pointer;transition:background 0.12s;user-select:none;}
+.ck:hover{background:var(--lblue);}
+.ck input[type=checkbox]{width:16px;height:16px;accent-color:var(--navy);cursor:pointer;flex-shrink:0;}
+.ck label{cursor:pointer;font-size:13.5px;line-height:1.35;}
+
+/* ── NONE BUTTON ── */
+.none-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 16px;border:2px solid var(--border);border-radius:9px;
+  font-size:13px;font-weight:600;cursor:pointer;background:var(--lgray);
+  color:var(--gray);transition:all 0.15s;margin-bottom:12px;
+  font-family:'DM Sans',sans-serif;
+}
+.none-btn:hover{border-color:var(--green);color:var(--green);}
+.none-btn.on{background:var(--lgreen);border-color:var(--green);color:var(--green);}
+
+/* ── PAIN SCALE ── */
+.pain-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap;}
+.pain-lbl{font-size:10px;color:var(--gray);font-weight:700;margin:0 4px;}
+.pb{
+  width:42px;height:42px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:14px;font-weight:700;cursor:pointer;background:var(--lgray);
+  transition:all 0.15s;display:flex;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;
+}
+.pb:hover,.pb.on{background:var(--navy);color:var(--white);border-color:var(--navy);}
+
+/* ── BODY DIAGRAM ── */
+.body-wrap{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;}
+.body-diagram{flex:0 0 auto;position:relative;}
+.body-diagram svg{display:block;}
+.body-region{cursor:pointer;transition:all 0.15s;fill:transparent;stroke:var(--border);stroke-width:1.5;}
+.body-region:hover{fill:rgba(26,79,160,0.15);stroke:var(--navy);}
+.body-region.selected{fill:rgba(26,79,160,0.35);stroke:var(--navy);stroke-width:2.5;}
+.body-region.primary{fill:rgba(192,57,43,0.35);stroke:var(--red);stroke-width:2.5;}
+.body-label{pointer-events:none;font-size:8px;fill:var(--gray);font-family:'DM Sans',sans-serif;text-anchor:middle;}
+.body-info{flex:1;min-width:200px;}
+.body-info-title{font-size:13px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;}
+.body-tags{display:flex;flex-wrap:wrap;gap:6px;min-height:32px;}
+.body-tag{
+  background:var(--lblue);border:1.5px solid var(--navy);color:var(--navy);
+  font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:20px;
+  cursor:pointer;transition:all 0.12s;
+}
+.body-tag:hover{background:var(--lred);border-color:var(--red);color:var(--red);}
+.body-tag.primary-tag{background:#fdf3f3;border-color:var(--red);color:var(--red);}
+.body-hint{font-size:13px;font-weight:600;color:var(--navy);margin-top:8px;}
+
+/* ── INFO / WARN BOXES ── */
+.ibox{background:var(--lblue);border:1.5px solid var(--blue);border-radius:9px;padding:10px 14px;font-size:12.5px;color:var(--navy);line-height:1.6;margin-bottom:14px;}
+.gbox{background:var(--lgreen);border:1.5px solid #81c784;border-radius:9px;padding:10px 14px;font-size:12.5px;color:var(--green);line-height:1.6;margin-bottom:14px;}
+
+/* ── REVIEW ── */
+.rv-sec{margin-bottom:16px;}
+.rv-hdr{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.7px;padding:6px 12px;background:var(--lblue);border-radius:7px;margin-bottom:9px;}
+.rv-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 20px;}
+.rv-lbl{font-size:9.5px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1px;}
+.rv-val{font-size:13px;border-bottom:0.5px solid var(--border);padding-bottom:3px;min-height:19px;}
+
+/* ── SUCCESS ── */
+.ok-wrap{text-align:center;padding:48px 24px;}
+.ok-icon{width:68px;height:68px;background:var(--lgreen);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.ok-title{font-family:'Libre Baskerville',serif;font-size:22px;color:var(--navy);margin-bottom:10px;}
+.ok-sub{color:var(--gray);font-size:13.5px;line-height:1.75;max-width:400px;margin:0 auto;}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1.5px solid var(--border);padding:12px 20px;z-index:99;box-shadow:0 -3px 16px rgba(26,79,160,0.07);}
+.nav-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.btn{padding:12px 26px;border-radius:10px;font-size:14.5px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:7px;line-height:1;}
+.btn-navy{background:var(--navy);color:var(--white);}
+.btn-navy:hover{background:#153e82;}
+.btn-ghost{background:transparent;color:var(--gray);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--lgray);}
+.btn-green{background:var(--green);color:var(--white);}
+.btn-green:hover{background:#245f27;}
+
+/* ── XRAY conditional ── */
+.xray-section{display:none;}
+.xray-section.show{display:block;}
+
+@media(max-width:600px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .s2,.s3{grid-column:span 1;}
+  .cg,.cg3{grid-template-columns:1fr;}
+  .rv-grid{grid-template-columns:1fr;}
+  .choices.grid2{grid-template-columns:1fr;}
+  .pb{width:36px;height:36px;font-size:12px;}
+  .body-wrap{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-top">
+      <div class="brand">
+        <div>
+          <img src="https://raw.githubusercontent.com/DrBerns/PainMed/main/PainMed%20-%20Blue%20Sub%20Text%20-%20with%20Swirl.png" alt="PainMed" style="height:48px;width:auto;display:block;">
+          <div class="brand-sub">New Patient Intake</div>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-step-lbl">Step <span id="scur">1</span> of 5</div>
+        <div class="hdr-step-name" id="sname">Patient Information</div>
+      </div>
+    </div>
+    <div class="prog-dots" id="pdots">
+      <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STEP 1 — PATIENT INFORMATION
+════════════════════════════════ -->
+<div class="step active" id="s1">
+  <div class="card">
+    <div class="card-hdr"><h2>Patient Information</h2><p>Please complete all fields. Phone numbers and dates will format automatically.</p></div>
+    <div class="card-body">
+      <div class="fg g2">
+        <div class="f s2"><label>Full Legal Name <span class="req">*</span></label><input class="fi" id="pt_name" placeholder="First Middle Last" oninput="syncName()"></div>
+        <div class="f"><label>Date of Birth <span class="req">*</span></label><input class="fi" id="pt_dob" placeholder="MM/DD/YYYY" oninput="fmtDate(this)" maxlength="10"></div>
+        <div class="f"><label>Sex <span class="req">*</span></label>
+          <select class="fsel" id="pt_sex" onchange="toggleXray();updateBodyDiagram()">
+            <option value="">Select...</option><option>Male</option><option>Female</option><option>Prefer not to answer</option>
+          </select>
+        </div>
+        <div class="f s2"><label>Home Address <span class="req">*</span></label><input class="fi" id="pt_addr" placeholder="Street address"></div>
+        <div class="f"><label>City <span class="req">*</span></label><input class="fi" id="pt_city" placeholder="City"></div>
+        <div class="f g2 fg" style="grid-column:auto;">
+          <div class="f"><label>State</label><input class="fi" id="pt_state" placeholder="FL" maxlength="2" oninput="this.value=this.value.toUpperCase()"></div>
+          <div class="f"><label>ZIP</label><input class="fi" id="pt_zip" placeholder="XXXXX" maxlength="5" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+        </div>
+        <div class="f"><label>Cell Phone <span class="req">*</span></label><input class="fi" id="pt_phone" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this)" maxlength="14"></div>
+        <div class="f"><label>Home Phone</label><input class="fi" id="pt_phone_h" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this)" maxlength="14"></div>
+        <div class="f s2"><label>Email Address <span class="req">*</span></label><input class="fi" id="pt_email" type="email" placeholder="you@email.com"></div>
+        <div class="f"><label>Marital Status</label>
+          <select class="fsel" id="pt_marital">
+            <option value="">Select...</option><option>Single</option><option>Married</option><option>Divorced</option><option>Separated</option><option>Partner</option><option>Minor</option>
+          </select>
+        </div>
+        <div class="f"><label>Spouse / Partner Name</label><input class="fi" id="pt_spouse" placeholder="If applicable"></div>
+      </div>
+
+      <hr class="divider">
+      <div class="sec-lbl">Employment</div>
+      <div class="fg g2">
+        <div class="f"><label>Occupation</label><input class="fi" id="pt_occ" placeholder="Your occupation"></div>
+        <div class="f"><label>Employer</label><input class="fi" id="pt_emp" placeholder="Employer name"></div>
+        <div class="f"><label>Work Phone</label><input class="fi" id="pt_work_ph" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this)" maxlength="14"></div>
+        <div class="f"><label>Work Activity Type</label>
+          <select class="fsel" id="pt_work_type">
+            <option value="">Select...</option><option>Sitting (desk/office)</option><option>Standing (prolonged)</option><option>Light Labor</option><option>Heavy Labor</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div class="sec-lbl">Emergency Contact</div>
+      <div class="fg g2">
+        <div class="f"><label>Name <span class="req">*</span></label><input class="fi" id="ec_name" placeholder="Full name"></div>
+        <div class="f"><label>Phone <span class="req">*</span></label><input class="fi" id="ec_ph" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this)" maxlength="14"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STEP 2 — INJURY & INSURANCE
+════════════════════════════════ -->
+<div class="step" id="s2">
+  <div class="card">
+    <div class="card-hdr"><h2>Injury &amp; Insurance Information</h2><p>Tell us about your injury and insurance coverage.</p></div>
+    <div class="card-body">
+      <div class="sec-lbl">Injury Details</div>
+      <div class="fg g2" style="margin-bottom:16px;">
+        <div class="f"><label>Date of Injury <span class="req">*</span></label><input class="fi" id="acc_date" placeholder="MM/DD/YYYY" oninput="fmtDate(this)" maxlength="10"></div>
+        <div class="f"><label>Location / Intersection</label><input class="fi" id="acc_loc" placeholder="Where the injury occurred"></div>
+      </div>
+
+      <div class="f" style="margin-bottom:4px;"><label>Type of Injury <span class="req">*</span></label></div>
+      <div class="choices grid2" id="injury_type_group" style="margin-bottom:6px;">
+        <div class="choice" onclick="pickOne(this,'injury_type_group')" data-val="Motor Vehicle Accident">🚗 &nbsp;Motor Vehicle Accident<br><span style="font-size:11px;font-weight:400;opacity:0.75;">Driver or passenger in a vehicle</span></div>
+        <div class="choice" onclick="pickOne(this,'injury_type_group')" data-val="Pedestrian / Bicycle Accident">🚶 &nbsp;Pedestrian / Bicycle Accident<br><span style="font-size:11px;font-weight:400;opacity:0.75;">On foot, bicycle, or transit</span></div>
+        <div class="choice" onclick="pickOne(this,'injury_type_group')" data-val="Slip and Fall">⚠️ &nbsp;Slip and Fall<br><span style="font-size:11px;font-weight:400;opacity:0.75;">Fall on property or premises</span></div>
+        <div class="choice" onclick="pickOne(this,'injury_type_group')" data-val="Work-Related Injury">🏗️ &nbsp;Work-Related Injury<br><span style="font-size:11px;font-weight:400;opacity:0.75;">Injury that occurred at work</span></div>
+      </div>
+      <input type="hidden" id="injury_type">
+
+      <hr class="divider">
+      <div class="sec-lbl">Insurance Coverage</div>
+      <div class="fg g2" style="margin-bottom:10px;">
+        <div class="f"><label>Auto / Primary Insurance Carrier</label><input class="fi" id="auto_ins" placeholder="Carrier name"></div>
+        <div class="f"><label>Claim / Policy Number</label><input class="fi" id="ins_claim" placeholder="Claim or policy number"></div>
+        <div class="f s2"><label>Health Insurance Carrier</label><input class="fi" id="hlth_ins" placeholder="Carrier name"></div>
+      </div>
+      <div class="none-btn" id="no_ins_btn" onclick="toggleNoInsurance()" style="margin-bottom:10px;">✓ &nbsp;I do not have insurance</div>
+      <div class="ibox" style="margin-top:6px;">📌 Please bring copies of all insurance cards to your appointment.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STEP 3 — SYMPTOMS SINCE INJURY
+════════════════════════════════ -->
+<div class="step" id="s3">
+  <div class="card">
+    <div class="card-hdr"><h2>Symptoms Since Your Injury</h2><p>Select your primary area of complaint, then any additional areas below.</p></div>
+    <div class="card-body">
+
+      <!-- ── PRIMARY COMPLAINT ── -->
+      <div class="sec-lbl">Primary Complaint — Select One Main Area</div>
+      <div class="ibox" style="margin-bottom:12px;">Tap the <strong>one area</strong> that bothers you most. Use the section below for additional areas.</div>
+      <div class="body-wrap">
+        <div class="body-diagram" id="body-diagram-wrap">
+          <!-- SVG injected by updateBodyDiagram() on load and sex change -->
+        </div>
+        <div class="body-info">
+          <div class="body-info-title">Primary Area</div>
+          <div class="body-tags" id="body-tags-display"><span style="font-size:14px;font-weight:600;color:var(--navy);">Tap one region</span></div>
+          <div class="body-hint" style="margin-top:8px;">Tap to select. Tap again to deselect.</div>
+        </div>
+      </div>
+      <input type="hidden" id="body_regions">
+
+      <hr class="divider">
+      <div class="f" style="margin-bottom:14px;">
+        <label>These symptoms are...</label>
+        <div class="choices" id="onset_type_group" style="margin-top:6px;">
+          <div class="choice" onclick="pickOne(this,'onset_type_group')" data-val="New since the injury">New since the injury</div>
+          <div class="choice" onclick="pickOne(this,'onset_type_group')" data-val="Made worse since the injury">Made worse since the injury</div>
+        </div>
+        <input type="hidden" id="onset_type">
+      </div>
+
+      <div class="f" style="margin-bottom:14px;">
+        <label>Pain Intensity — 0 (none) to 10 (severe)</label>
+        <div class="pain-row" style="margin-top:6px;">
+          <span class="pain-lbl">None</span>
+          <div class="pb" onclick="setPain(this,'p_main',0)">0</div><div class="pb" onclick="setPain(this,'p_main',1)">1</div>
+          <div class="pb" onclick="setPain(this,'p_main',2)">2</div><div class="pb" onclick="setPain(this,'p_main',3)">3</div>
+          <div class="pb" onclick="setPain(this,'p_main',4)">4</div><div class="pb" onclick="setPain(this,'p_main',5)">5</div>
+          <div class="pb" onclick="setPain(this,'p_main',6)">6</div><div class="pb" onclick="setPain(this,'p_main',7)">7</div>
+          <div class="pb" onclick="setPain(this,'p_main',8)">8</div><div class="pb" onclick="setPain(this,'p_main',9)">9</div>
+          <div class="pb" onclick="setPain(this,'p_main',10)">10</div>
+          <span class="pain-lbl">Severe</span>
+        </div>
+        <input type="hidden" id="p_main">
+      </div>
+
+      <div class="f" style="margin-bottom:14px;">
+        <label>How much of your day are you in pain?</label>
+        <div class="choices" id="pct_group" style="margin-top:6px;">
+          <div class="choice" onclick="pickOne(this,'pct_group')" data-val="0–25%">0–25%</div>
+          <div class="choice" onclick="pickOne(this,'pct_group')" data-val="26–50%">26–50%</div>
+          <div class="choice" onclick="pickOne(this,'pct_group')" data-val="51–75%">51–75%</div>
+          <div class="choice" onclick="pickOne(this,'pct_group')" data-val="76–100%">76–100%</div>
+        </div>
+        <input type="hidden" id="pain_pct">
+      </div>
+
+      <div class="f" style="margin-bottom:14px;">
+        <label>Type of Pain — Select All That Apply</label>
+        <div class="choices" id="pain_type_group" style="margin-top:6px;">
+          <div class="choice" onclick="toggleChoice(this)" data-val="Sharp">Sharp</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Dull">Dull</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Aching">Aching</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Burning">Burning</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Throbbing">Throbbing</div>
+        </div>
+        <input type="hidden" id="pain_type">
+      </div>
+
+      <hr class="divider">
+      <!-- ── ADDITIONAL COMPLAINT AREAS ── -->
+      <div class="sec-lbl">Additional Areas of Complaint — Select All That Apply</div>
+      <div class="ibox" style="margin-bottom:12px;">Tap any other areas where you have pain or discomfort since the injury.</div>
+      <div class="body-wrap">
+        <div class="body-diagram" id="body-diagram-wrap2">
+          <!-- SVG injected by updateBodyDiagram() -->
+        </div>
+        <div class="body-info">
+          <div class="body-info-title">Additional Areas</div>
+          <div class="body-tags" id="body-tags-display2"><span style="font-size:14px;font-weight:600;color:var(--navy);">Tap regions to add</span></div>
+          <div class="body-hint" style="margin-top:8px;">Tap to select. Tap again to deselect.</div>
+        </div>
+      </div>
+      <input type="hidden" id="body_regions2">
+
+      <hr class="divider">
+      <div class="sec-lbl">Additional Symptoms — Check All That Apply</div>
+      <div class="cg" style="margin-bottom:14px;">
+        <label class="ck"><input type="checkbox" id="sx_ha"><label for="sx_ha">Headaches</label></label>
+        <label class="ck"><input type="checkbox" id="sx_shoulders"><label for="sx_shoulders">Tension Across Shoulders</label></label>
+        <label class="ck"><input type="checkbox" id="sx_numb" onchange="toggleNumbSub()"><label for="sx_numb">Numbness / Tingling</label></label>
+        <div id="numb_sub" style="display:none;grid-column:span 2;padding:8px 10px 4px 28px;">
+          <div style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Where?</div>
+          <div class="choices" id="numb_where_group" style="gap:6px;">
+            <div class="choice" onclick="toggleChoice(this)" data-val="Arms / Hands">Arms / Hands</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Legs / Feet">Legs / Feet</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Other">Other</div>
+          </div>
+          <input type="hidden" id="numb_where">
+        </div>
+        <label class="ck"><input type="checkbox" id="sx_diz"><label for="sx_diz">Dizziness</label></label>
+        <label class="ck"><input type="checkbox" id="sx_vision"><label for="sx_vision">Changes in Vision</label></label>
+        <label class="ck"><input type="checkbox" id="sx_swallow"><label for="sx_swallow">Difficulty Swallowing</label></label>
+        <label class="ck"><input type="checkbox" id="sx_tired"><label for="sx_tired">Fatigue</label></label>
+        <label class="ck"><input type="checkbox" id="sx_sleep"><label for="sx_sleep">Sleep Difficulty</label></label>
+        <label class="ck"><input type="checkbox" id="sx_ring"><label for="sx_ring">Ringing in Ears</label></label>
+        <label class="ck"><input type="checkbox" id="sx_fog"><label for="sx_fog">Brain Fog / Difficulty Concentrating</label></label>
+        <label class="ck"><input type="checkbox" id="sx_naus"><label for="sx_naus">Nausea</label></label>
+        <label class="ck"><input type="checkbox" id="sx_vomit"><label for="sx_vomit">Vomiting</label></label>
+        <label class="ck"><input type="checkbox" id="sx_bal"><label for="sx_bal">Balance Difficulty</label></label>
+        <label class="ck"><input type="checkbox" id="sx_jaw"><label for="sx_jaw">Jaw Pain</label></label>
+        <label class="ck"><input type="checkbox" id="sx_mood"><label for="sx_mood">Mood Changes</label></label>
+        <label class="ck"><input type="checkbox" id="sx_anx"><label for="sx_anx">Anxiety / Nervousness</label></label>
+      </div>
+
+      <div class="f"><label>Other Symptoms Not Listed</label><textarea class="fta" id="sx_other" placeholder="Describe any additional symptoms..."></textarea></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     STEP 4 — PAST MEDICAL HISTORY
+════════════════════════════════ -->
+<div class="step" id="s4">
+  <div class="card">
+    <div class="card-hdr"><h2>Past Medical History</h2><p>Check any conditions you have been diagnosed with or treated for in the past.</p></div>
+    <div class="card-body">
+      <div class="cg3">
+        <label class="ck"><input type="checkbox" id="ph_hbp"><label for="ph_hbp">High Blood Pressure</label></label>
+        <label class="ck"><input type="checkbox" id="ph_heart"><label for="ph_heart">Heart Disease</label></label>
+        <label class="ck"><input type="checkbox" id="ph_diab"><label for="ph_diab">Diabetes</label></label>
+        <label class="ck"><input type="checkbox" id="ph_chol"><label for="ph_chol">High Cholesterol</label></label>
+        <label class="ck"><input type="checkbox" id="ph_stroke"><label for="ph_stroke">Stroke</label></label>
+        <label class="ck"><input type="checkbox" id="ph_cancer"><label for="ph_cancer">Cancer</label></label>
+        <label class="ck"><input type="checkbox" id="ph_arth"><label for="ph_arth">Arthritis</label></label>
+        <label class="ck"><input type="checkbox" id="ph_ra"><label for="ph_ra">Rheumatoid Arthritis</label></label>
+        <label class="ck"><input type="checkbox" id="ph_ost"><label for="ph_ost">Osteoporosis</label></label>
+        <label class="ck"><input type="checkbox" id="ph_disc"><label for="ph_disc">Herniated Disc</label></label>
+        <label class="ck"><input type="checkbox" id="ph_pin"><label for="ph_pin">Pinched Nerve</label></label>
+        <label class="ck"><input type="checkbox" id="ph_mig"><label for="ph_mig">Migraines</label></label>
+        <label class="ck"><input type="checkbox" id="ph_asth"><label for="ph_asth">Asthma</label></label>
+        <label class="ck"><input type="checkbox" id="ph_thyroid"><label for="ph_thyroid">Thyroid Disease</label></label>
+        <label class="ck"><input type="checkbox" id="ph_dep"><label for="ph_dep">Depression / Anxiety</label></label>
+        <label class="ck"><input type="checkbox" id="ph_add"><label for="ph_add">ADD / ADHD</label></label>
+        <label class="ck"><input type="checkbox" id="ph_epil"><label for="ph_epil">Epilepsy / Seizures</label></label>
+        <label class="ck"><input type="checkbox" id="ph_kid"><label for="ph_kid">Kidney Disease</label></label>
+        <label class="ck"><input type="checkbox" id="ph_liver"><label for="ph_liver">Liver Disease</label></label>
+        <label class="ck"><input type="checkbox" id="ph_bleed"><label for="ph_bleed">Bleeding Disorders</label></label>
+        <label class="ck"><input type="checkbox" id="ph_hiv"><label for="ph_hiv">HIV / AIDS</label></label>
+        <label class="ck"><input type="checkbox" id="ph_tmj"><label for="ph_tmj">TMJ / Jaw Problems</label></label>
+        <label class="ck"><input type="checkbox" id="ph_fib"><label for="ph_fib">Fibromyalgia</label></label>
+      </div>
+      <div class="f" style="margin-top:13px;">
+        <label>Other Conditions Not Listed</label>
+        <input class="fi" id="ph_other" placeholder="Any other significant diagnoses or conditions">
+      </div>
+
+      <hr class="divider">
+      <div class="sec-lbl">Current Medications</div>
+      <div class="none-btn" id="no_meds_btn" onclick="toggleNone('no_meds_btn','meds_section')">✓ &nbsp;I am not currently taking any medications</div>
+      <div id="meds_section">
+        <div class="ibox">Select all conditions you are currently taking medication for.</div>
+        <div class="cg3" style="margin-bottom:12px;">
+          <label class="ck"><input type="checkbox" id="med_hbp"><label for="med_hbp">High Blood Pressure</label></label>
+          <label class="ck"><input type="checkbox" id="med_chol"><label for="med_chol">Cholesterol</label></label>
+          <label class="ck"><input type="checkbox" id="med_diab"><label for="med_diab">Diabetes</label></label>
+          <label class="ck"><input type="checkbox" id="med_pain"><label for="med_pain">Chronic Pain</label></label>
+          <label class="ck"><input type="checkbox" id="med_anx"><label for="med_anx">Anxiety / Depression</label></label>
+          <label class="ck"><input type="checkbox" id="med_add"><label for="med_add">ADD / ADHD</label></label>
+          <label class="ck"><input type="checkbox" id="med_thy"><label for="med_thy">Thyroid</label></label>
+          <label class="ck"><input type="checkbox" id="med_bp"><label for="med_bp">Blood Thinners</label></label>
+          <label class="ck"><input type="checkbox" id="med_asth"><label for="med_asth">Asthma / Breathing</label></label>
+        </div>
+        <div class="f"><label>Other Medications (condition and/or drug name)</label><textarea class="fta" id="med_other" placeholder="List any other medications not covered above..." style="min-height:60px;"></textarea></div>
+      </div>
+
+      <hr class="divider">
+      <div class="sec-lbl">Surgeries &amp; Hospitalizations</div>
+      <div class="none-btn" id="no_surg_btn" onclick="toggleNone('no_surg_btn','surg_section')">✓ &nbsp;No surgeries or hospitalizations</div>
+      <div id="surg_section">
+        <div class="f"><label>Surgeries / Hospitalizations (type and approximate date)</label><textarea class="fta" id="surgeries" placeholder="e.g. Knee surgery 2019, Appendectomy 2015..."></textarea></div>
+      </div>
+
+      <hr class="divider">
+      <div class="sec-lbl">Allergies</div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Food Allergies</div>
+        <div class="choices" id="food_alg_group" style="flex-wrap:wrap;">
+          <div class="choice" onclick="toggleFoodAlg(this)" data-val="Shellfish / Iodine">Shellfish / Iodine</div>
+          <div class="choice" onclick="toggleFoodAlg(this)" data-val="Other Food Allergies">Other Food Allergies</div>
+          <div class="choice" onclick="toggleFoodAlg(this,'none')" data-val="No Food Allergies">No Food Allergies</div>
+        </div>
+        <input type="hidden" id="food_alg">
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Medication Allergies</div>
+        <div class="choices" id="med_alg_group" style="flex-wrap:wrap;">
+          <div class="choice" onclick="toggleChoice(this)" data-val="Penicillin">Penicillin</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Sulfa Drugs">Sulfa Drugs</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Tetracycline">Tetracycline</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Codeine">Codeine</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="NSAIDs / Aspirin">NSAIDs / Aspirin</div>
+          <div class="choice" onclick="toggleChoice(this)" data-val="Latex">Latex</div>
+          <div class="choice" onclick="pickOne(this,'med_alg_group',true)" data-val="No Medication Allergies">No Medication Allergies</div>
+        </div>
+        <input type="hidden" id="med_alg">
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Environmental Allergies</div>
+        <div class="choices" id="env_alg_group">
+          <div class="choice" onclick="pickOne(this,'env_alg_group')" data-val="Yes">Yes</div>
+          <div class="choice" onclick="pickOne(this,'env_alg_group')" data-val="No">No</div>
+        </div>
+        <input type="hidden" id="env_alg">
+      </div>
+      <div class="f"><label>Other Allergies</label><input class="fi" id="alg_other" placeholder="Any other allergies not listed above"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     STEP 5 — FAMILY & SOCIAL HISTORY
+════════════════════════════════ -->
+<div class="step" id="s5">
+  <div class="card">
+    <div class="card-hdr"><h2>Family &amp; Social History</h2><p>This information helps us understand your overall health background.</p></div>
+    <div class="card-body">
+      <div class="sec-lbl">Family History of Disease</div>
+      <div class="ibox">Check any conditions that run in your family, then indicate which side.</div>
+
+      <div id="fam_history_rows">
+        <!-- Heart Disease -->
+        <div class="fg" style="margin-bottom:10px;gap:8px;">
+          <div style="font-size:13.5px;font-weight:600;color:#1a2535;margin-bottom:4px;">Heart Disease</div>
+          <div class="choices" id="fh_heart_group">
+            <div class="choice" onclick="toggleChoice(this)" data-val="Mother's Side">Mother's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Father's Side">Father's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Sibling">Sibling</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Other">Other</div>
+            <div class="choice" onclick="pickOne(this,'fh_heart_group',true)" data-val="None">None</div>
+          </div>
+          <input type="hidden" id="fh_heart">
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:6px 0;">
+        <!-- Diabetes -->
+        <div class="fg" style="margin-bottom:10px;gap:8px;">
+          <div style="font-size:13.5px;font-weight:600;color:#1a2535;margin-bottom:4px;">Diabetes</div>
+          <div class="choices" id="fh_diab_group">
+            <div class="choice" onclick="toggleChoice(this)" data-val="Mother's Side">Mother's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Father's Side">Father's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Sibling">Sibling</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Other">Other</div>
+            <div class="choice" onclick="pickOne(this,'fh_diab_group',true)" data-val="None">None</div>
+          </div>
+          <input type="hidden" id="fh_diab">
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:6px 0;">
+        <!-- Cancer -->
+        <div class="fg" style="margin-bottom:10px;gap:8px;">
+          <div style="font-size:13.5px;font-weight:600;color:#1a2535;margin-bottom:4px;">Cancer</div>
+          <div class="choices" id="fh_cancer_group">
+            <div class="choice" onclick="toggleChoice(this)" data-val="Mother's Side">Mother's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Father's Side">Father's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Sibling">Sibling</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Other">Other</div>
+            <div class="choice" onclick="pickOne(this,'fh_cancer_group',true)" data-val="None">None</div>
+          </div>
+          <input type="hidden" id="fh_cancer">
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:6px 0;">
+        <!-- Autoimmune -->
+        <div class="fg" style="margin-bottom:10px;gap:8px;">
+          <div style="font-size:13.5px;font-weight:600;color:#1a2535;margin-bottom:4px;">Autoimmune Disease</div>
+          <div class="choices" id="fh_auto_group">
+            <div class="choice" onclick="toggleChoice(this)" data-val="Mother's Side">Mother's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Father's Side">Father's Side</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Sibling">Sibling</div>
+            <div class="choice" onclick="toggleChoice(this)" data-val="Other">Other</div>
+            <div class="choice" onclick="pickOne(this,'fh_auto_group',true)" data-val="None">None</div>
+          </div>
+          <input type="hidden" id="fh_auto">
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div class="sec-lbl">Social History</div>
+
+      <div class="f" style="margin-bottom:14px;">
+        <label>Exercise Frequency</label>
+        <div class="choices" id="exercise_group" style="margin-top:6px;">
+          <div class="choice" onclick="pickOne(this,'exercise_group');buildReview()" data-val="Frequently">Frequently</div>
+          <div class="choice" onclick="pickOne(this,'exercise_group');buildReview()" data-val="Moderately">Moderately</div>
+          <div class="choice" onclick="pickOne(this,'exercise_group');buildReview()" data-val="Occasionally">Occasionally</div>
+          <div class="choice" onclick="pickOne(this,'exercise_group');buildReview()" data-val="None">None</div>
+        </div>
+        <input type="hidden" id="exercise">
+      </div>
+
+      <div class="f" style="margin-bottom:14px;">
+        <label>Alcohol Intake</label>
+        <div class="choices" id="alcohol_group" style="margin-top:6px;">
+          <div class="choice" onclick="pickOne(this,'alcohol_group');buildReview()" data-val="I don't drink alcohol">I don't drink</div>
+          <div class="choice" onclick="pickOne(this,'alcohol_group');buildReview()" data-val="Less than 5 drinks/week">Less than 5/week</div>
+          <div class="choice" onclick="pickOne(this,'alcohol_group');buildReview()" data-val="5–10 drinks/week">5–10/week</div>
+          <div class="choice" onclick="pickOne(this,'alcohol_group');buildReview()" data-val="More than 10 drinks/week">More than 10/week</div>
+        </div>
+        <input type="hidden" id="alcohol">
+      </div>
+
+      <div class="f" style="margin-bottom:14px;">
+        <label>Tobacco / Cigarette Use</label>
+        <div class="choices" id="tobacco_group" style="margin-top:6px;">
+          <div class="choice" onclick="pickOne(this,'tobacco_group');buildReview()" data-val="I don't use tobacco">I don't use tobacco</div>
+          <div class="choice" onclick="pickOne(this,'tobacco_group');buildReview()" data-val="Light smoker">Light smoker</div>
+          <div class="choice" onclick="pickOne(this,'tobacco_group');buildReview()" data-val="Moderate smoker">Moderate smoker</div>
+          <div class="choice" onclick="pickOne(this,'tobacco_group');buildReview()" data-val="Heavy smoker">Heavy smoker</div>
+        </div>
+        <input type="hidden" id="tobacco">
+      </div>
+
+      <!-- X-RAY — female only -->
+      <div class="xray-section" id="xray_section">
+        <hr class="divider">
+        <div class="sec-lbl">X-Ray Information — Female Patients</div>
+        <div class="ibox">Our examination may indicate X-rays are needed. We need to confirm pregnancy status before proceeding.</div>
+        <div class="f">
+          <label>Pregnancy Status</label>
+          <div class="choices" id="preg_group" style="margin-top:6px;flex-wrap:wrap;">
+            <div class="choice" onclick="pickOne(this,'preg_group')" data-val="There is a possibility I may be pregnant">Possibly pregnant</div>
+            <div class="choice" onclick="pickOne(this,'preg_group')" data-val="I am definitely pregnant">Definitely pregnant</div>
+            <div class="choice" onclick="pickOne(this,'preg_group')" data-val="I am not pregnant">I am not pregnant</div>
+          </div>
+          <input type="hidden" id="preg_status">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEW SUMMARY -->
+  <div class="card">
+    <div class="card-hdr"><h2>Review Your Information</h2><p>Please confirm the summary below before submitting.</p></div>
+    <div class="card-body">
+      <div id="rv-content"></div>
+      <div class="ibox" style="margin-top:16px;">🔒 By submitting you confirm all information is accurate and complete to the best of your knowledge.</div>
+    </div>
+  </div>
+  <div style="padding:8px 0 16px;text-align:center;">
+    <button class="btn btn-green" style="width:100%;max-width:420px;font-size:16px;padding:15px 28px;justify-content:center;" onclick="doSubmit()">✓ &nbsp;Submit</button>
+  </div>
+</div>
+
+<!-- ══ SUCCESS ══ -->
+<div class="step" id="s-ok">
+  <div class="card">
+    <div class="ok-wrap">
+      <div class="ok-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="ok-title">Thank You</div>
+      <div class="ok-sub">Your intake form has been completed and is being sent to our front desk.</div>
+      <div style="margin-top:20px;">
+        <div id="email-status" style="font-size:14px;font-weight:600;color:var(--navy);min-height:22px;margin-bottom:20px;"></div>
+      </div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:12px;align-items:center;">
+        <button class="btn btn-navy" onclick="exportPDF()" style="font-size:15px;padding:14px 36px;justify-content:center;min-width:280px;">⬇ &nbsp;Save a Copy (PDF)</button>
+        <div id="pdf-status" style="font-size:12px;color:var(--gray);min-height:18px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV ══ -->
+<div class="nav" id="navbar">
+  <div class="nav-inner">
+    <button class="btn btn-ghost" id="btnBack" onclick="goBack()" style="display:none;">← Back</button>
+    <div style="flex:1;"></div>
+    <button class="btn btn-navy" id="btnNext" onclick="goNext()">Continue →</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────
+let cur = 1;
+const TOTAL = 5;
+const NAMES = ['Patient Information','Injury & Insurance','Symptoms Since Injury','Past Medical History','Family & Social History'];
+const pains = {};
+
+// ── NAV ──────────────────────────────
+function goNext(){
+  if(cur < TOTAL){ cur++; show(); }
+  else { /* submit handled by button on step 5 */ }
+}
+function goBack(){ if(cur > 1){ cur--; show(); } }
+
+function show(){
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('s'+cur);
+  if(el) el.classList.add('active');
+  document.getElementById('scur').textContent = cur;
+  document.getElementById('sname').textContent = NAMES[cur-1];
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((d,i) => { d.classList.remove('active','done'); if(i<cur-1) d.classList.add('done'); if(i===cur-1) d.classList.add('active'); });
+  document.getElementById('btnBack').style.display = cur>1 ? '' : 'none';
+  document.getElementById('btnNext').style.display = cur===TOTAL ? 'none' : '';
+  if(cur===TOTAL) setTimeout(buildReview, 100);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── FORMAT HELPERS ──────────────────
+function fmtDate(el){
+  let v = el.value.replace(/\D/g,'');
+  if(v.length > 2) v = v.slice(0,2)+'/'+v.slice(2);
+  if(v.length > 5) v = v.slice(0,5)+'/'+v.slice(5,9);
+  el.value = v;
+}
+function fmtPhone(el){
+  let v = el.value.replace(/\D/g,'');
+  if(v.length === 0){ el.value=''; return; }
+  if(v.length <= 3) v = '('+v;
+  else if(v.length <= 6) v = '('+v.slice(0,3)+') '+v.slice(3);
+  else v = '('+v.slice(0,3)+') '+v.slice(3,6)+'-'+v.slice(6,10);
+  el.value = v;
+}
+
+// ── NAME SYNC ──────────────────────
+function syncName(){}
+
+// ── CHOICE HELPERS ──────────────────
+function pickOne(el, groupId, allowDeselect){
+  const group = document.getElementById(groupId);
+  const hidId = groupId.replace('_group','');
+  const hid = document.getElementById(hidId);
+  const wasOn = el.classList.contains('on');
+  group.querySelectorAll('.choice').forEach(c => c.classList.remove('on'));
+  if(!wasOn || !allowDeselect){
+    el.classList.add('on');
+    if(hid) hid.value = el.dataset.val;
+  } else {
+    if(hid) hid.value = '';
+  }
+}
+function toggleChoice(el){
+  el.classList.toggle('on');
+  // sync parent hidden input
+  const group = el.closest('.choices');
+  const hidId = group.id.replace('_group','');
+  const hid = document.getElementById(hidId);
+  if(hid){
+    const selected = [...group.querySelectorAll('.choice.on')].map(c=>c.dataset.val);
+    hid.value = selected.join(', ');
+  }
+}
+
+// ── NUMBNESS SUB-OPTIONS ──────────
+function toggleNumbSub(){
+  const cb = document.getElementById('sx_numb');
+  const sub = document.getElementById('numb_sub');
+  if(sub) sub.style.display = cb.checked ? 'block' : 'none';
+  if(!cb.checked){
+    // clear sub selections
+    const grp = document.getElementById('numb_where_group');
+    if(grp) grp.querySelectorAll('.choice').forEach(c=>c.classList.remove('on'));
+    const h = document.getElementById('numb_where'); if(h) h.value='';
+  }
+}
+
+// ── FOOD ALLERGY MUTUAL EXCLUSIVITY ──
+function toggleFoodAlg(el, mode){
+  const group = document.getElementById('food_alg_group');
+  const hid = document.getElementById('food_alg');
+  if(mode === 'none'){
+    // "No Food Allergies" selected — deselect all others, toggle self
+    const wasOn = el.classList.contains('on');
+    group.querySelectorAll('.choice').forEach(c => c.classList.remove('on'));
+    if(!wasOn){ el.classList.add('on'); }
+  } else {
+    // specific allergy selected — deselect "No Food Allergies"
+    group.querySelectorAll('.choice').forEach(c => { if(c.dataset.val === 'No Food Allergies') c.classList.remove('on'); });
+    el.classList.toggle('on');
+  }
+  const selected = [...group.querySelectorAll('.choice.on')].map(c=>c.dataset.val);
+  if(hid) hid.value = selected.join(', ');
+}
+
+function toggleNone(btnId, sectionId){
+  const btn = document.getElementById(btnId);
+  const sec = document.getElementById(sectionId);
+  btn.classList.toggle('on');
+  if(btn.classList.contains('on')){
+    sec.style.display = 'none';
+  } else {
+    sec.style.display = '';
+  }
+}
+
+// ── PAIN ──────────────────────────
+function setPain(el, fid, v){
+  el.closest('.pain-row').querySelectorAll('.pb').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  const f = document.getElementById(fid); if(f) f.value = v;
+  pains[fid] = v;
+}
+
+// ── NO INSURANCE TOGGLE ──────────
+function toggleNoInsurance(){
+  const btn = document.getElementById('no_ins_btn');
+  btn.classList.toggle('on');
+  const noIns = btn.classList.contains('on');
+  ['auto_ins','ins_claim','hlth_ins'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.disabled = noIns; el.style.opacity = noIns ? '0.4' : '1'; }
+  });
+}
+
+// ── PAIN TYPE MULTI-SELECT SYNC ──
+// toggleChoice handles multi-select already; just need hidden input sync for pain_type_group
+// Override: pain_type_group uses toggleChoice so we need to sync its hidden input
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('#pain_type_group .choice').forEach(el => {
+    el.addEventListener('click', ()=>{
+      const vals = [...document.querySelectorAll('#pain_type_group .choice.on')].map(c=>c.dataset.val);
+      const h = document.getElementById('pain_type');
+      if(h) h.value = vals.join(', ');
+    });
+  });
+});
+
+// ── BODY DIAGRAM ──────────────────
+const bodyRegions = {};    // primary: id->label (single select)
+const bodyRegions2 = {};   // secondary: id->label (multi select)
+
+// Illustrated human silhouette SVG — male or female variant
+function buildBodySVG(prefix, isSingle, sex){
+  const W = 340, H = 410;
+
+  const fn = (id, label, shape, x, y, w, h, rx=6) => {
+    const onclick = isSingle
+      ? `selectPrimary(this,'${id}','${label}')`
+      : `toggleRegion2(this,'${id}','${label}')`;
+    if(shape === 'ellipse'){
+      return `<ellipse class="body-region" id="${prefix}${id}" cx="${x}" cy="${y}" rx="${w}" ry="${h}" onclick="${onclick}"/>`;
+    }
+    return `<rect class="body-region" id="${prefix}${id}" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" onclick="${onclick}"/>`;
+  };
+
+  // FRONT figure centred x=82
+  const front = `
+    <ellipse cx="82" cy="28" rx="19" ry="23" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M74,34 Q70,29 70,34 Q70,39 74,37" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M90,34 Q94,29 94,34 Q94,39 90,37" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M76,50 L76,60 Q82,63 88,60 L88,50" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M76,60 Q66,62 56,68 L50,90 Q48,108 50,124 Q54,136 62,140 L68,152 Q74,156 82,156 Q90,156 96,152 L102,140 Q110,136 114,124 Q116,108 114,90 L108,68 Q98,62 88,60" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M68,152 Q82,160 96,152" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M50,90 Q40,94 37,118 Q37,128 42,133 Q47,135 52,132 Q55,120 53,92" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M42,133 Q36,154 34,172 Q38,177 45,175 Q51,156 52,132" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M34,172 Q31,179 33,184 Q38,186 45,183 Q47,177 45,175" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M114,90 Q124,94 127,118 Q127,128 122,133 Q117,135 112,132 Q109,120 111,92" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M122,133 Q128,154 130,172 Q126,177 119,175 Q113,156 112,132" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M130,172 Q133,179 131,184 Q126,186 119,183 Q117,177 119,175" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M68,152 Q62,170 61,200 Q61,216 66,224 Q72,228 78,224 Q81,206 80,175" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M66,224 Q62,254 62,286 Q62,300 67,307 Q74,311 80,307 Q83,288 81,248 Q80,234 78,224" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M62,307 Q59,313 62,318 Q69,321 80,318 Q83,312 80,307" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M96,152 Q102,170 103,200 Q103,216 98,224 Q92,228 86,224 Q83,206 84,175" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M98,224 Q102,254 102,286 Q102,300 97,307 Q90,311 84,307 Q81,288 83,248 Q84,234 86,224" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M102,307 Q105,313 102,318 Q95,321 84,318 Q81,312 84,307" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M61,222 Q69,219 78,222" fill="none" stroke="#bbb" stroke-width="1"/>
+    <path d="M86,222 Q94,219 103,222" fill="none" stroke="#bbb" stroke-width="1"/>
+    <text x="82" y="342" style="font-size:12px;fill:#1a4fa0;font-family:'DM Sans',sans-serif;text-anchor:middle;font-weight:700;letter-spacing:2px;">FRONT</text>
+    ${fn('head_f','Head','ellipse',82,28,21,25)}
+    ${fn('throat','Throat','rect',74,49,16,13,3)}
+    ${fn('lsh_f','L Front Shoulder','ellipse',50,76,14,10)}
+    ${fn('rsh_f','R Front Shoulder','ellipse',114,76,14,10)}
+    ${fn('chest','Chest','rect',58,62,48,34,5)}
+    ${fn('abd','Abdomen','rect',58,96,48,34,5)}
+    ${fn('lhip','L Hip','rect',58,130,22,26,4)}
+    ${fn('rhip','R Hip','rect',84,130,22,26,4)}
+    ${fn('lua_f','L Front Upper Arm','rect',35,88,18,42,5)}
+    ${fn('rua_f','R Front Upper Arm','rect',111,88,18,42,5)}
+    ${fn('lfa_f','L Front Arm / Hand','rect',28,130,18,56,5)}
+    ${fn('rfa_f','R Front Arm / Hand','rect',118,130,18,56,5)}
+    ${fn('lth_f','L Front Thigh','rect',59,156,22,66,5)}
+    ${fn('rth_f','R Front Thigh','rect',83,156,22,66,5)}
+    ${fn('lkn_f','L Front Knee','ellipse',69,224,11,10)}
+    ${fn('rkn_f','R Front Knee','ellipse',95,224,11,10)}
+    ${fn('llf_f','L Front Leg / Foot','rect',59,234,22,82,5)}
+    ${fn('rlf_f','R Front Leg / Foot','rect',83,234,22,82,5)}
+  `;
+
+  // BACK figure centred x=258
+  const back = `
+    <ellipse cx="258" cy="28" rx="19" ry="23" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M239,34 Q235,29 235,34 Q235,39 239,37" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M277,34 Q281,29 281,34 Q281,39 277,37" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M252,50 L252,60 Q258,63 264,60 L264,50" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M252,60 Q242,62 232,68 L226,90 Q224,108 226,124 Q230,136 238,140 L244,152 Q250,156 258,156 Q266,156 272,152 L278,140 Q286,136 290,124 Q292,108 290,90 L284,68 Q274,62 264,60" fill="none" stroke="#333" stroke-width="1.8"/>
+    <line x1="258" y1="62" x2="258" y2="148" stroke="#ccc" stroke-width="1" stroke-dasharray="3,4"/>
+    <path d="M236,88 Q232,97 236,104 Q242,106 246,101 Q244,92 240,88" fill="none" stroke="#ccc" stroke-width="1"/>
+    <path d="M280,88 Q284,97 280,104 Q274,106 270,101 Q272,92 276,88" fill="none" stroke="#ccc" stroke-width="1"/>
+    <path d="M244,152 Q258,160 272,152" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M258,152 Q256,158 258,161 Q260,158 258,152" fill="none" stroke="#aaa" stroke-width="1"/>
+    <path d="M226,90 Q216,94 213,118 Q213,128 218,133 Q223,135 228,132 Q231,120 229,92" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M218,133 Q212,154 210,172 Q214,177 221,175 Q227,156 228,132" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M210,172 Q207,179 209,184 Q214,186 221,183 Q223,177 221,175" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M290,90 Q300,94 303,118 Q303,128 298,133 Q293,135 288,132 Q285,120 287,92" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M298,133 Q304,154 306,172 Q302,177 295,175 Q289,156 288,132" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M306,172 Q309,179 307,184 Q302,186 295,183 Q293,177 295,175" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M244,152 Q238,170 237,200 Q237,216 242,224 Q248,228 254,224 Q257,206 256,175" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M242,224 Q238,254 238,286 Q238,300 243,307 Q250,311 256,307 Q259,288 257,248 Q256,234 254,224" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M238,307 Q235,313 238,318 Q245,321 256,318 Q259,312 256,307" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M272,152 Q278,170 279,200 Q279,216 274,224 Q268,228 262,224 Q259,206 260,175" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M274,224 Q278,254 278,286 Q278,300 273,307 Q266,311 260,307 Q257,288 259,248 Q260,234 262,224" fill="none" stroke="#333" stroke-width="1.8"/>
+    <path d="M278,307 Q281,313 278,318 Q271,321 260,318 Q257,312 260,307" fill="none" stroke="#333" stroke-width="1.3"/>
+    <path d="M237,222 Q245,219 254,222" fill="none" stroke="#bbb" stroke-width="1"/>
+    <path d="M262,222 Q270,219 279,222" fill="none" stroke="#bbb" stroke-width="1"/>
+    <text x="258" y="342" style="font-size:12px;fill:#1a4fa0;font-family:'DM Sans',sans-serif;text-anchor:middle;font-weight:700;letter-spacing:2px;">BACK</text>
+    ${fn('head_b','Head (Back)','ellipse',258,28,21,25)}
+    ${fn('neck_b','Neck Pain','rect',250,49,16,13,3)}
+    ${fn('lsh_b','L Back Shoulder','ellipse',226,76,14,10)}
+    ${fn('rsh_b','R Back Shoulder','ellipse',290,76,14,10)}
+    ${fn('upback','Upper Back','rect',234,62,48,34,5)}
+    ${fn('midback','Mid Back','rect',234,96,48,34,5)}
+    ${fn('lowback','Lower Back','rect',234,130,48,24,5)}
+    ${fn('lua_b','L Back Upper Arm','rect',211,88,18,42,5)}
+    ${fn('rua_b','R Back Upper Arm','rect',287,88,18,42,5)}
+    ${fn('lfa_b','L Back Arm / Hand','rect',204,130,18,56,5)}
+    ${fn('rfa_b','R Back Arm / Hand','rect',294,130,18,56,5)}
+    ${fn('lbutt','L Buttocks','rect',234,156,22,26,4)}
+    ${fn('rbutt','R Buttocks','rect',260,156,22,26,4)}
+    ${fn('lth_b','L Back Thigh','rect',235,182,22,40,5)}
+    ${fn('rth_b','R Back Thigh','rect',259,182,22,40,5)}
+    ${fn('lkn_b','L Back Knee','ellipse',245,224,11,10)}
+    ${fn('rkn_b','R Back Knee','ellipse',271,224,11,10)}
+    ${fn('llf_b','L Back Leg / Foot','rect',235,234,22,82,5)}
+    ${fn('rlf_b','R Back Leg / Foot','rect',259,234,22,82,5)}
+  `;
+
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <style>
+      .body-region{fill:transparent;stroke:transparent;cursor:pointer;transition:all 0.15s;}
+      .body-region:hover{fill:rgba(26,79,160,0.18);stroke:#1a4fa0;stroke-width:1.5;}
+      .body-region.selected{fill:rgba(26,79,160,0.35);stroke:#1a4fa0;stroke-width:2;}
+      .body-region.primary{fill:rgba(192,57,43,0.4);stroke:#c0392b;stroke-width:2.5;}
+    </style>
+    ${front}${back}
+  </svg>`;
+}
+
+
+function updateBodyDiagram(){
+  const sex = document.getElementById('pt_sex')?.value || '';
+  ['body-diagram-wrap','body-diagram-wrap2'].forEach((wrapId, idx) => {
+    const wrap = document.getElementById(wrapId);
+    if(!wrap) return;
+    const isSingle = idx === 0;
+    wrap.innerHTML = buildBodySVG(isSingle ? 'br1_' : 'br2_', isSingle, sex);
+    // Re-apply existing selections
+    const map = isSingle ? bodyRegions : bodyRegions2;
+    Object.keys(map).forEach(id => {
+      const el = document.getElementById((isSingle ? 'br1_' : 'br2_') + id);
+      if(el) el.classList.add(isSingle ? 'primary' : 'selected');
+    });
+  });
+}
+
+// PRIMARY — single select
+function selectPrimary(el, id, label){
+  const wrap = document.getElementById('body-diagram-wrap');
+  // Deselect all
+  wrap.querySelectorAll('.body-region.primary').forEach(r => r.classList.remove('primary'));
+  const wasSelected = Object.keys(bodyRegions).length > 0 && bodyRegions[id];
+  // Clear map
+  Object.keys(bodyRegions).forEach(k => delete bodyRegions[k]);
+  if(!wasSelected){
+    el.classList.add('primary');
+    bodyRegions[id] = label;
+  }
+  // Update tags
+  const container = document.getElementById('body-tags-display');
+  const keys = Object.keys(bodyRegions);
+  if(keys.length === 0){
+    container.innerHTML = '<span style="font-size:14px;font-weight:600;color:var(--navy);">Tap one region</span>';
+  } else {
+    container.innerHTML = keys.map(k =>
+      `<span class="body-tag" onclick="clearPrimary('${k}')">${bodyRegions[k]} ✕</span>`
+    ).join('');
+  }
+  document.getElementById('body_regions').value = Object.values(bodyRegions).join(', ');
+}
+function clearPrimary(id){
+  delete bodyRegions[id];
+  const el = document.getElementById('br1_' + id);
+  if(el) el.classList.remove('primary');
+  document.getElementById('body-tags-display').innerHTML = '<span style="font-size:14px;font-weight:600;color:var(--navy);">Tap one region</span>';
+  document.getElementById('body_regions').value = '';
+}
+
+// SECONDARY — multi select
+function toggleRegion2(el, id, label){
+  el.classList.toggle('selected');
+  if(el.classList.contains('selected')){
+    bodyRegions2[id] = label;
+  } else {
+    delete bodyRegions2[id];
+  }
+  const container = document.getElementById('body-tags-display2');
+  const keys = Object.keys(bodyRegions2);
+  if(keys.length === 0){
+    container.innerHTML = '<span style="font-size:14px;font-weight:600;color:var(--navy);">Tap regions to add</span>';
+  } else {
+    container.innerHTML = keys.map(k =>
+      `<span class="body-tag" onclick="removeRegion2('${k}')">${bodyRegions2[k]} ✕</span>`
+    ).join('');
+  }
+  document.getElementById('body_regions2').value = Object.values(bodyRegions2).join(', ');
+}
+function removeRegion2(id){
+  delete bodyRegions2[id];
+  const el = document.getElementById('br2_' + id);
+  if(el) el.classList.remove('selected');
+  toggleRegion2({classList:{toggle:()=>{},contains:()=>false,add:()=>{},remove:()=>{}}}, id, '');
+  // Rebuild tags
+  const container = document.getElementById('body-tags-display2');
+  const keys = Object.keys(bodyRegions2);
+  container.innerHTML = keys.length === 0
+    ? '<span style="font-size:14px;font-weight:600;color:var(--navy);">Tap regions to add</span>'
+    : keys.map(k => `<span class="body-tag" onclick="removeRegion2('${k}')">${bodyRegions2[k]} ✕</span>`).join('');
+  document.getElementById('body_regions2').value = Object.values(bodyRegions2).join(', ');
+}
+
+// ── X-RAY CONDITIONAL ──────────────
+function toggleXray(){
+  const sex = document.getElementById('pt_sex').value;
+  const xs = document.getElementById('xray_section');
+  if(xs) xs.classList.toggle('show', sex === 'Female');
+}
+
+// ── REVIEW BUILD ──────────────────
+function buildReview(){
+  const gv = id => { const e=document.getElementById(id); return e?e.value.trim():''; };
+  const gcb = ids => ids.filter(id => { const e=document.getElementById(id); return e&&e.checked; })
+    .map(id => { const lbl=document.querySelector('label[for="'+id+'"]'); return lbl?lbl.textContent.trim():''; }).filter(Boolean);
+
+  const row = (l,v) => v ? `<div><div class="rv-lbl">${l}</div><div class="rv-val">${v}</div></div>` : '';
+
+  const accSx = gcb(['sx_ha','sx_shoulders','sx_numb','sx_diz','sx_vision','sx_swallow','sx_tired','sx_sleep','sx_ring','sx_fog','sx_naus','sx_vomit','sx_bal','sx_jaw','sx_mood','sx_anx']);
+  const numbWhere = gv('numb_where');
+  const pmh = gcb(['ph_hbp','ph_heart','ph_diab','ph_chol','ph_stroke','ph_cancer','ph_arth','ph_ra','ph_ost','ph_disc','ph_pin','ph_mig','ph_asth','ph_thyroid','ph_dep','ph_add','ph_epil','ph_kid','ph_liver','ph_bleed','ph_hiv','ph_tmj','ph_fib']);
+  const medConds = gcb(['med_hbp','med_chol','med_diab','med_pain','med_anx','med_add','med_thy','med_bp','med_asth']);
+  const noMeds = document.getElementById('no_meds_btn')?.classList.contains('on');
+  const noSurg = document.getElementById('no_surg_btn')?.classList.contains('on');
+  const medAlg = gv('med_alg');
+
+  // Social history — read from hidden inputs populated by pickOne
+  const exercise = gv('exercise');
+  const alcohol = gv('alcohol');
+  const tobacco = gv('tobacco');
+
+  let sxList = accSx.slice();
+  if(sxList.includes('Numbness / Tingling') && numbWhere) {
+    const idx = sxList.indexOf('Numbness / Tingling');
+    sxList[idx] = 'Numbness / Tingling (' + numbWhere + ')';
+  }
+
+  const sections = [
+    { t:'Patient Demographics', rows:[
+      ['Name', gv('pt_name')], ['Date of Birth', gv('pt_dob')],
+      ['Phone', gv('pt_phone')], ['Email', gv('pt_email')],
+      ['Address', [gv('pt_addr'),gv('pt_city'),gv('pt_state'),gv('pt_zip')].filter(Boolean).join(', ')],
+      ['Occupation', gv('pt_occ')], ['Employer', gv('pt_emp')],
+      ['Emergency Contact', gv('ec_name') + (gv('ec_ph')?' — '+gv('ec_ph'):'')],
+    ]},
+    { t:'Injury & Insurance', rows:[
+      ['Date of Injury', gv('acc_date')], ['Location', gv('acc_loc')],
+      ['Type of Injury', gv('injury_type')],
+      ['Auto Insurance', gv('auto_ins')], ['Health Insurance', gv('hlth_ins')],
+      ['Claim Number', gv('ins_claim')],
+    ]},
+    { t:'Symptoms', rows:[
+      ['Primary Complaint', gv('body_regions')||'—'],
+      ['Additional Areas', gv('body_regions2')],
+      ['Onset', gv('onset_type')],
+      ['Pain Level', pains['p_main']!==undefined ? pains['p_main']+'/10' : '—'],
+      ['% Day in Pain', gv('pain_pct')],
+      ['Pain Type', gv('pain_type')],
+      ['Additional Symptoms', sxList.length ? sxList.join(', ') : 'None selected'],
+      ['Other', gv('sx_other')],
+    ]},
+    { t:'Past Medical History', rows:[
+      ['Conditions', pmh.length ? pmh.join(', ') : 'None selected'],
+      ['Other', gv('ph_other')],
+      ['Medications', noMeds ? 'None' : (medConds.length ? medConds.join(', ') : '')+(gv('med_other')?' + '+gv('med_other'):'')],
+      ['Surgeries', noSurg ? 'None' : gv('surgeries')],
+      ['Food Allergies', gv('food_alg')||'None'],
+      ['Medication Allergies', medAlg||'None'],
+      ['Environmental Allergies', gv('env_alg')],
+      ['Other Allergies', gv('alg_other')],
+    ]},
+    { t:'Family & Social History', rows:[
+      ['Heart Disease', gv('fh_heart')||'—'], ['Diabetes', gv('fh_diab')||'—'],
+      ['Cancer', gv('fh_cancer')||'—'], ['Autoimmune', gv('fh_auto')||'—'],
+      ['Exercise', exercise||'—'],
+      ['Alcohol', alcohol||'—'],
+      ['Tobacco', tobacco||'—'],
+    ]},
+  ];
+  if(gv('pt_sex')==='Female' && gv('preg_status')){
+    sections[sections.length-1].rows.push(['Pregnancy Status', gv('preg_status')]);
+  }
+
+  let out = '';
+  sections.forEach(sec => {
+    out += `<div class="rv-sec"><div class="rv-hdr">${sec.t}</div><div class="rv-grid">`;
+    sec.rows.forEach(([l,v]) => { if(v) out += `${row(l,v)}`; });
+    out += `</div></div>`;
+  });
+  document.getElementById('rv-content').innerHTML = out;
+}
+
+// ── SUBMIT ──────────────────────────
+// ── WORKER URL ──────────────────────
+// Paste your Cloudflare Worker URL here after deploying:
+const WORKER_URL = 'https://spinemed-imap-worker.drberns.workers.dev/sendemail';
+
+function doSubmit(){
+  buildReview();
+  document.getElementById('navbar').style.display = 'none';
+  document.getElementById('pdots').style.display = 'none';
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-ok').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(sendToWorker, 500);
+}
+
+async function sendToWorker(){
+  const emailStatus = document.getElementById('email-status');
+  if(emailStatus) emailStatus.textContent = 'Sending to front desk...';
+  const gv = id => { const e=document.getElementById(id); return e?e.value.trim():''; };
+  const ptName = gv('pt_name') || 'Patient';
+  const doi = gv('acc_date') || '';
+  const today = new Date();
+  const ds = String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0')+'-'+today.getFullYear();
+  const filename = 'PainMed_Intake_'+ptName.replace(/\s+/g,'_')+'_'+ds+'.pdf';
+  try {
+    const pdfHtml = buildPDFHtml();
+    const pdfBlob = await html2pdf().set({
+      margin:[14,14,16,14],
+      image:{type:'jpeg',quality:1.0},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      jsPDF:{unit:'mm',format:'letter',orientation:'portrait'}
+    }).from(pdfHtml).outputPdf('blob');
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(pdfBlob);
+    });
+    const response = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'x-api-secret': 'SpineMed2026'},
+      body: JSON.stringify({patientName:ptName, dateOfInjury:doi, pdfBase64:base64, pdfFilename:filename})
+    });
+    const result = await response.json();
+    if(result.success){
+      if(emailStatus) emailStatus.textContent = '\u2713 Intake sent to front desk.';
+    } else {
+      if(emailStatus) emailStatus.textContent = 'Email delivery failed \u2014 please export PDF manually.';
+      console.error('Worker error:', result);
+    }
+  } catch(err) {
+    if(emailStatus) emailStatus.textContent = 'Email delivery failed \u2014 please export PDF manually.';
+    console.error('sendToWorker error:', err);
+  }
+}
+
+// ── PDF HTML BUILDER (shared by exportPDF and sendToWorker) ──
+function buildPDFHtml(){
+  const gv = id => { const e=document.getElementById(id); return e?e.value.trim():''; };
+  const gcb = ids => ids.filter(id => { const e=document.getElementById(id); return e&&e.checked; })
+    .map(id => { const lbl=document.querySelector('label[for="'+id+'"]'); return lbl?lbl.textContent.trim():''; }).filter(Boolean);
+
+  const accSx = gcb(['sx_ha','sx_shoulders','sx_numb','sx_diz','sx_vision','sx_swallow','sx_tired','sx_sleep','sx_ring','sx_fog','sx_naus','sx_vomit','sx_bal','sx_jaw','sx_mood','sx_anx']);
+  const numbWhere = gv('numb_where');
+  let sxList = accSx.slice();
+  if(sxList.includes('Numbness / Tingling') && numbWhere){
+    const idx = sxList.indexOf('Numbness / Tingling');
+    sxList[idx] = 'Numbness / Tingling (' + numbWhere + ')';
+  }
+
+  const pmh = gcb(['ph_hbp','ph_heart','ph_diab','ph_chol','ph_stroke','ph_cancer','ph_arth','ph_ra','ph_ost','ph_disc','ph_pin','ph_mig','ph_asth','ph_thyroid','ph_dep','ph_add','ph_epil','ph_kid','ph_liver','ph_bleed','ph_hiv','ph_tmj','ph_fib']);
+  const medConds = gcb(['med_hbp','med_chol','med_diab','med_pain','med_anx','med_add','med_thy','med_bp','med_asth']);
+  const noMeds = document.getElementById('no_meds_btn')?.classList.contains('on');
+  const noSurg = document.getElementById('no_surg_btn')?.classList.contains('on');
+  const medAlg = gv('med_alg');
+  const S = v => v||'\u2014';
+  const today = new Date();
+
+  const ICD10_CONDITIONS = {
+    'High Blood Pressure':'I10','Heart Disease':'I25.10','Diabetes':'E11.9',
+    'High Cholesterol':'E78.5','Stroke':'I63.9','Cancer':'C80.1',
+    'Arthritis':'M19.90','Rheumatoid Arthritis':'M06.9','Osteoporosis':'M81.0',
+    'Herniated Disc':'M51.16','Pinched Nerve':'M54.12','Migraines':'G43.909',
+    'Asthma':'J45.909','Thyroid Disease':'E07.9','Depression / Anxiety':'F32.9',
+    'ADD / ADHD':'F90.9','Epilepsy / Seizures':'G40.909','Kidney Disease':'N28.9',
+    'Liver Disease':'K76.9','Bleeding Disorders':'D68.9','HIV / AIDS':'B20',
+    'TMJ / Jaw Problems':'M26.60','Fibromyalgia':'M79.3'
+  };
+  const ICD10_SYMPTOMS = {
+    'Headaches':'R51.9','Tension Across Shoulders':'M62.838','Numbness / Tingling':'R20.2',
+    'Dizziness':'R42','Changes in Vision':'H53.9','Difficulty Swallowing':'R13.10',
+    'Fatigue':'R53.83','Sleep Difficulty':'G47.00','Ringing in Ears':'H93.19',
+    'Brain Fog / Difficulty Concentrating':'R41.3','Nausea':'R11.0','Vomiting':'R11.10',
+    'Balance Difficulty':'R26.89','Jaw Pain':'M26.60','Mood Changes':'R45.89',
+    'Anxiety / Nervousness':'F41.9'
+  };
+  const ICD10_MEDS = {
+    'High Blood Pressure':'I10','Cholesterol':'E78.5','Diabetes':'E11.9',
+    'Chronic Pain':'G89.29','Anxiety / Depression':'F32.9','ADD / ADHD':'F90.9',
+    'Thyroid':'E07.9','Blood Thinners':'D68.9','Asthma / Breathing':'J45.909'
+  };
+  function withICD(name, map){
+    const base = name.replace(/\s*\(.*\)$/,'').trim();
+    const code = map[base] || map[name];
+    if(code) return `${name} <span style="color:#cc0000;font-weight:700;">(${code})</span>`;
+    return name;
+  }
+  const pmhWithCodes = pmh.map(c => withICD(c, ICD10_CONDITIONS)).join('<br>');
+  const medCondsWithCodes = medConds.map(c => withICD(c, ICD10_MEDS)).join('<br>');
+  const sxWithCodes = sxList.map(s => withICD(s, ICD10_SYMPTOMS)).join('<br>');
+
+  const row = (l,v,allowHtml) => `<tr style="page-break-inside:avoid;">
+    <td style="width:34%;font-size:12pt;color:#333333;padding:5px 8px 5px 0;vertical-align:top;font-family:Arial,sans-serif;">${l}</td>
+    <td style="font-size:12pt;color:#111111;padding:5px 0 5px 6px;border-bottom:1px solid #cccccc;vertical-align:top;font-family:Arial,sans-serif;">${allowHtml?v:S(v)}</td>
+  </tr>`;
+  const hdr = t => `<tr style="page-break-inside:avoid;page-break-before:avoid;">
+    <td colspan="2" style="padding:12px 0 5px;">
+      <div style="font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:#1a4fa0;padding-bottom:5px;border-bottom:3px solid #1a4fa0;font-family:Arial,sans-serif;">${t}</div>
+    </td>
+  </tr>`;
+
+  return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12pt;color:#111111;width:680px;background:#ffffff;">
+  <div style="border-bottom:4px solid #1a4fa0;padding-bottom:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="https://raw.githubusercontent.com/DrBerns/PainMed/main/PainMed%20-%20Blue%20Sub%20Text%20-%20with%20Swirl.png" crossorigin="anonymous" style="height:44px;width:auto;">
+      <div>
+        <div style="font-size:18pt;font-weight:900;color:#1a4fa0;font-family:Georgia,serif;letter-spacing:-0.3px;">PainMed</div>
+        <div style="font-size:10pt;color:#444444;margin-top:2px;font-family:Arial,sans-serif;">Interventional Pain Management · New Patient Intake</div>
+      </div>
+    </div>
+    <div style="text-align:right;font-size:9pt;color:#555555;font-family:Arial,sans-serif;">
+      Generated: ${today.toLocaleString()}<br>
+      701 W Dr. MLK Jr Blvd, Ste 4, Tampa FL 33603<br>
+      3010 E. 138th Ave, Ste 300, Tampa FL 33613
+    </div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;">
+    ${hdr('Patient Demographics')}
+    ${row('Full Legal Name', gv('pt_name'))}
+    ${row('Date of Birth', gv('pt_dob'))}
+    ${row('Address', [gv('pt_addr'),gv('pt_city'),gv('pt_state'),gv('pt_zip')].filter(Boolean).join(', '))}
+    ${row('Cell Phone', gv('pt_phone'))}
+    ${row('Home Phone', gv('pt_phone_h'))}
+    ${row('Email', gv('pt_email'))}
+    ${row('Sex', gv('pt_sex'))}
+    ${row('Marital Status', gv('pt_marital'))}
+    ${row('Spouse / Partner', gv('pt_spouse'))}
+    ${row('Occupation', gv('pt_occ'))}
+    ${row('Employer', gv('pt_emp'))}
+    ${row('Work Phone', gv('pt_work_ph'))}
+    ${row('Emergency Contact', gv('ec_name')+(gv('ec_ph')?' \u2014 '+gv('ec_ph'):''))}
+    ${hdr('Injury & Insurance')}
+    ${row('Date of Injury', gv('acc_date'))}
+    ${row('Location', gv('acc_loc'))}
+    ${row('Type of Injury', gv('injury_type'))}
+    ${row('Auto / Primary Insurance', gv('auto_ins'))}
+    ${row('Health Insurance', gv('hlth_ins'))}
+    ${row('Claim / Policy #', gv('ins_claim'))}
+    ${hdr('Symptoms Since Injury')}
+    ${row('Primary Complaint Area', gv('body_regions'))}
+    ${row('Additional Complaint Areas', gv('body_regions2'))}
+    ${row('Onset', gv('onset_type'))}
+    ${row('Pain Level (0\u201310)', document.getElementById('p_main')?.value!==undefined&&document.getElementById('p_main')?.value!==''?document.getElementById('p_main').value+'/10':'\u2014')}
+    ${row('% Day in Pain', gv('pain_pct'))}
+    ${row('Pain Type', gv('pain_type'))}
+    ${row('Additional Symptoms', sxList.length?sxWithCodes:'None', true)}
+    ${row('Other Symptoms', gv('sx_other'))}
+    ${hdr('Past Medical History')}
+    ${row('Conditions', pmh.length?pmhWithCodes:'None reported', true)}
+    ${row('Other Conditions', gv('ph_other'))}
+    ${row('Medications', noMeds?'None':(medConds.length?medCondsWithCodes:'\u2014')+(gv('med_other')?'<br>Other: '+gv('med_other'):''), true)}
+    ${row('Surgeries / Hospitalizations', noSurg?'None':S(gv('surgeries')))}
+    ${row('Food Allergies', gv('food_alg')||'None')}
+    ${row('Medication Allergies', medAlg||'None')}
+    ${row('Environmental Allergies', gv('env_alg'))}
+    ${row('Other Allergies', gv('alg_other'))}
+    ${hdr('Family & Social History')}
+    ${row('Heart Disease', gv('fh_heart'))}
+    ${row('Diabetes', gv('fh_diab'))}
+    ${row('Cancer', gv('fh_cancer'))}
+    ${row('Autoimmune Disease', gv('fh_auto'))}
+    ${row('Exercise', gv('exercise'))}
+    ${row('Alcohol', gv('alcohol'))}
+    ${row('Tobacco', gv('tobacco'))}
+    ${gv('pt_sex')==='Female'?row('Pregnancy Status', gv('preg_status')):''}
+  </table>
+  <div style="margin-top:18px;padding-top:10px;border-top:2px solid #cccccc;font-size:9pt;color:#777777;text-align:center;font-family:Arial,sans-serif;">
+    Suncoast Physical Medicine, LLC D/B/A PainMed &nbsp;\u2022&nbsp; Interventional Pain Management &nbsp;\u2022&nbsp; info@suncoastspinemed.com
+  </div>
+</div>`;
+}
+
+// ── PDF EXPORT ──────────────────────
+function exportPDF(){
+  const status = document.getElementById('pdf-status');
+  status.textContent = 'Generating PDF \u2014 please wait...';
+  const gv = id => { const e=document.getElementById(id); return e?e.value.trim():''; };
+  const ptName = gv('pt_name').replace(/\s+/g,'_')||'Patient';
+  const today = new Date();
+  const ds = String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0')+'-'+today.getFullYear();
+  const filename = 'PainMed_Intake_'+ptName+'_'+ds+'.pdf';
+  const html = buildPDFHtml();
+  html2pdf().set({
+    margin:[14,14,16,14],
+    filename:filename,
+    image:{type:'jpeg',quality:1.0},
+    html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+    jsPDF:{unit:'mm',format:'letter',orientation:'portrait'}
+  }).from(html).save().then(()=>{
+    status.textContent = '\u2713 PDF saved successfully.';
+    setTimeout(()=>{ status.textContent=''; },4000);
+  }).catch(err=>{
+    status.textContent = 'Error generating PDF. Please try again.';
+    console.error(err);
+  });
+}
+window.addEventListener('load', () => { show(); updateBodyDiagram(); });
+</script>
+</body>
+</html>
