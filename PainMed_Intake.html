@@ -650,6 +650,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--lgray);color:#1a2535;min-
     </div>
   </div>
 
+  <!-- PHOTO ATTACHMENTS -->
+  <div class="card">
+    <div class="card-hdr"><h2>Photo Attachments</h2><p>Please attach photos of your driver's license (front &amp; back) and insurance card(s) (front &amp; back). Up to 6 photos total.</p></div>
+    <div class="card-body">
+      <div class="photo-btns" id="photoBtns">
+        <button class="btn btn-navy" type="button" onclick="document.getElementById('photoCam').click()">Take Photo</button>
+        <button class="btn btn-ghost" type="button" onclick="document.getElementById('photoFile').click()">Choose from Files</button>
+      </div>
+      <input type="file" id="photoCam" accept="image/*" capture="environment" style="display:none">
+      <input type="file" id="photoFile" accept="image/*" multiple style="display:none">
+      <div class="photo-cap" id="photoCap">No photos attached yet</div>
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+  </div>
+
   <!-- REVIEW SUMMARY -->
   <div class="card">
     <div class="card-hdr"><h2>Review Your Information</h2><p>Please confirm the summary below before submitting.</p></div>
@@ -1183,6 +1198,76 @@ async function sendToWorker(){
     console.error('sendToWorker error:', err);
   }
 }
+
+// ── PHOTO ATTACHMENTS ──────────────────
+var photoDataUrls = [];
+var PHOTO_MAX = 6;
+
+function downscaleImage(file) {
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onload = function() {
+      var img = new Image();
+      img.onload = function() {
+        var MAX = 1600, w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function addPhotos(files) {
+  for (var i = 0; i < files.length && photoDataUrls.length < PHOTO_MAX; i++) {
+    if (!files[i].type.startsWith('image/')) continue;
+    photoDataUrls.push(await downscaleImage(files[i]));
+  }
+  renderPhotoGrid();
+}
+
+function removePhoto(idx) {
+  photoDataUrls.splice(idx, 1);
+  renderPhotoGrid();
+}
+
+function renderPhotoGrid() {
+  var grid = document.getElementById('photoGrid');
+  var cap = document.getElementById('photoCap');
+  var btns = document.getElementById('photoBtns');
+  grid.innerHTML = '';
+  if (photoDataUrls.length === 0) {
+    cap.textContent = 'No photos attached yet';
+    btns.querySelectorAll('button').forEach(function(b){ b.disabled = false; });
+    return;
+  }
+  cap.textContent = photoDataUrls.length + ' of ' + PHOTO_MAX + ' photos attached';
+  var atMax = photoDataUrls.length >= PHOTO_MAX;
+  btns.querySelectorAll('button').forEach(function(b){ b.disabled = atMax; });
+  if (atMax) cap.textContent = 'Maximum ' + PHOTO_MAX + ' photos reached';
+  photoDataUrls.forEach(function(dataUrl, i) {
+    var thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = '<img src="' + dataUrl + '"><div class="photo-badge">' + (i+1) + '</div><button class="photo-del" type="button" onclick="removePhoto('+i+')">&times;</button>';
+    grid.appendChild(thumb);
+  });
+}
+
+document.getElementById('photoCam').addEventListener('change', function() {
+  if (this.files.length) addPhotos(this.files);
+  this.value = '';
+});
+document.getElementById('photoFile').addEventListener('change', function() {
+  if (this.files.length) addPhotos(this.files);
+  this.value = '';
+});
 
 // ── PDF HTML BUILDER (shared by exportPDF and sendToWorker) ──
 function buildPDFHtml(){
