@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPT Code Lookup — PainMed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', Arial, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+  .hdr { background: #161b24; border-bottom: 1px solid #2a3040; padding: 14px 28px; position: sticky; top: 0; z-index: 100; }
+  .hdr-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; gap: 18px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #4a5568; text-decoration: none; transition: color 0.15s; padding: 6px 10px; border-radius: 6px; border: 1px solid #2a3040; background: #1e2433; }
+  .back-link:hover { color: #60a5fa; border-color: #60a5fa; }
+  .hdr-title { font-size: 14px; font-weight: 600; color: #cbd5e1; }
+  .hdr-title .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: #374151; display: block; margin-bottom: 2px; }
+  .live-badge { display: inline-block; font-size: 9px; font-weight: 600; background: #0d1e35; color: #60a5fa; border: 1px solid #1e3a5f; border-radius: 4px; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
+
+  main { max-width: 900px; margin: 28px auto; padding: 0 28px; display: flex; flex-direction: column; gap: 20px; }
+  .card { background: #161b24; border: 1px solid #2a3040; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: #374151; }
+  .card-sub { font-size: 12px; color: #4a5568; line-height: 1.5; margin-top: -8px; }
+  label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #4a5568; margin-bottom: 4px; display: block; }
+
+  .input-row { display: flex; gap: 10px; }
+  .query-input { flex: 1; background: #1e2433; border: 1px solid #2a3040; border-radius: 6px; color: #e2e8f0; padding: 11px 14px; font-family: 'DM Sans', Arial, sans-serif; font-size: 14px; outline: none; transition: border-color 0.15s; }
+  .query-input:focus { border-color: #60a5fa; }
+  .btn-primary { padding: 11px 22px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', Arial, sans-serif; border-radius: 8px; border: none; background: #60a5fa; color: #0f1117; cursor: pointer; transition: background 0.15s, opacity 0.15s; white-space: nowrap; }
+  .btn-primary:hover:not(:disabled) { background: #3b82f6; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .status { font-size: 11px; color: #4a5568; min-height: 14px; }
+  .status.sending { color: #f59e0b; }
+  .status.error { color: #ef4444; }
+  .status.ok { color: #60a5fa; }
+
+  .example-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .example-pill { padding: 5px 12px; border: 1px solid #2a3040; border-radius: 20px; font-size: 11.5px; color: #94a3b8; background: #1e2433; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .example-pill:hover { border-color: #60a5fa; color: #60a5fa; }
+
+  .results-card.empty .results-inner { color: #4a5568; font-style: italic; text-align: center; padding: 30px 0; }
+  .results-inner { display: flex; flex-direction: column; gap: 10px; }
+
+  .cpt-item { background: #1e2433; border: 1px solid #2a3040; border-radius: 8px; padding: 12px 16px; display: grid; grid-template-columns: 110px 1fr auto; gap: 14px; align-items: start; }
+  .cpt-code { font-weight: 700; color: #60a5fa; font-size: 15px; letter-spacing: 0.5px; padding-top: 1px; }
+  .cpt-desc { font-size: 13px; color: #e2e8f0; line-height: 1.5; }
+  .cpt-note { font-size: 11.5px; color: #94a3b8; margin-top: 4px; line-height: 1.55; font-style: italic; }
+  .cpt-modifier { display: inline-block; background: #0d1e35; color: #60a5fa; border: 1px solid #1e3a5f; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; margin-right: 4px; margin-top: 4px; font-style: normal; letter-spacing: 0.5px; }
+  .cpt-copy { background: none; border: 1px solid #2a3040; color: #4a5568; font-size: 11px; font-family: 'DM Sans', sans-serif; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: border-color 0.15s, color 0.15s; align-self: start; }
+  .cpt-copy:hover { border-color: #60a5fa; color: #60a5fa; }
+  .cpt-copy.copied { color: #60a5fa; border-color: #60a5fa; }
+
+  @media (max-width: 680px) {
+    .cpt-item { grid-template-columns: 1fr; gap: 6px; }
+    .cpt-copy { justify-self: start; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <a class="back-link" href="index.html">← Dashboard</a>
+    <div class="hdr-title">
+      <span class="tag">Clinical Documentation</span>
+      CPT Code Lookup<span class="live-badge">Live</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div>
+      <div class="card-title">Describe the procedure or service</div>
+      <div class="card-sub">Plain English. AI returns the correct 5-digit CPT code(s) with full description and modifier notes.</div>
+    </div>
+
+    <div>
+      <label>Description</label>
+      <div class="input-row">
+        <input class="query-input" id="queryInput" type="text" placeholder="e.g. three-view X-ray lumbar spine, chiropractic adjustment three regions, 15 minutes therapeutic exercise" autofocus>
+        <button class="btn-primary" id="lookupBtn">Look up</button>
+      </div>
+    </div>
+
+    <div class="example-row" id="examples">
+      <div class="example-pill">three-view X-ray lumbar spine</div>
+      <div class="example-pill">chiropractic adjustment three regions</div>
+      <div class="example-pill">15 minutes therapeutic exercise</div>
+      <div class="example-pill">new patient office visit, moderate complexity</div>
+      <div class="example-pill">trigger point injection three muscles</div>
+      <div class="example-pill">electrical stimulation 15 minutes</div>
+    </div>
+
+    <div class="status" id="status"></div>
+  </section>
+
+  <section class="card results-card empty" id="resultsCard">
+    <div>
+      <div class="card-title">Suggested CPT code(s)</div>
+      <div class="card-sub">Best match first. Modifier and units guidance included where relevant.</div>
+    </div>
+    <div class="results-inner" id="resultsInner">Enter a description above and click Look up.</div>
+  </section>
+</main>
+
+<script src="widget_common.js"></script>
+<script>
+(function () {
+  const queryInput = document.getElementById('queryInput');
+  const lookupBtn = document.getElementById('lookupBtn');
+  const status = document.getElementById('status');
+  const resultsCard = document.getElementById('resultsCard');
+  const resultsInner = document.getElementById('resultsInner');
+  const examples = document.getElementById('examples');
+
+  examples.addEventListener('click', (e) => {
+    if (e.target.classList.contains('example-pill')) {
+      queryInput.value = e.target.textContent;
+      lookupBtn.click();
+    }
+  });
+
+  queryInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') lookupBtn.click();
+  });
+
+  const SYSTEM_PROMPT = `You are a medical coding assistant that returns CPT codes for plain-English procedure/service descriptions.
+
+OUTPUT: Return ONLY a JSON object:
+  { "codes": [ { "code": "#####", "description": "...", "modifiers": ["50","59"], "note": "..." }, ... ] }
+
+RULES:
+- Each "code" is a real 5-digit CPT code (numeric, or alphanumeric HCPCS like G0283 when that's the right pick).
+- "description" is the official CPT descriptor — concise.
+- "modifiers" is an array of modifier codes (strings) that are typically needed for this scenario — e.g., "50" for bilateral, "59" for distinct procedural service, "LT"/"RT" for laterality, "GP"/"GO" for therapy discipline, "25" when an E/M is billed same day, "76" for repeat procedure. Empty array if no modifier applies.
+- "note" is 1–2 short lines: when this code is the right pick AND any relevant unit/time guidance (e.g., "Bill per 15-minute unit. Document total time."). Include bilateral/unilateral/laterality, units per session, frequency limits, or common payer quirks when relevant.
+- Cap the list at 5 codes. Return most likely first. Include alternates only when they realistically apply (different complexity levels, timed vs untimed variants).
+- For timed therapy codes (97xxx), explicitly state the 8-minute/15-minute rule if relevant.
+- For chiropractic 98940/98941/98942, choose the one matching region count and note each region.
+- For E/M codes, indicate new vs established patient and the MDM/time level.
+- If the description doesn't map to any real CPT, return { "codes": [] }.
+- Do NOT invent codes.`;
+
+  lookupBtn.onclick = async () => {
+    const q = queryInput.value.trim();
+    if (!q) { status.textContent = 'Type a description first.'; status.className = 'status error'; return; }
+    lookupBtn.disabled = true;
+    status.textContent = 'Looking up…'; status.className = 'status sending';
+    resultsCard.classList.remove('empty');
+    resultsInner.innerHTML = '';
+    const loading = document.createElement('div'); loading.style.color = '#4a5568'; loading.style.padding = '20px'; loading.style.textAlign = 'center'; loading.textContent = '…'; resultsInner.appendChild(loading);
+
+    try {
+      const raw = await callAnthropic({
+        system: SYSTEM_PROMPT,
+        user: `Description: ${q}\n\nReturn the JSON as described. No prose outside the JSON.`,
+        max_tokens: 1400,
+        temperature: 0.2
+      });
+      const parsed = extractJson(raw);
+      if (!parsed || !Array.isArray(parsed.codes)) throw new Error('Could not parse response.');
+
+      resultsInner.innerHTML = '';
+      if (parsed.codes.length === 0) {
+        const empty = document.createElement('div');
+        empty.style.color = '#4a5568'; empty.style.fontStyle = 'italic'; empty.style.textAlign = 'center'; empty.style.padding = '20px';
+        empty.textContent = 'No confident match. Try a more specific description.';
+        resultsInner.appendChild(empty);
+      } else {
+        for (const c of parsed.codes) {
+          const row = document.createElement('div');
+          row.className = 'cpt-item';
+
+          const codeEl = document.createElement('div'); codeEl.className = 'cpt-code'; codeEl.textContent = c.code || '';
+
+          const desc = document.createElement('div');
+          const top = document.createElement('div'); top.className = 'cpt-desc'; top.textContent = c.description || '';
+          desc.appendChild(top);
+
+          const mods = Array.isArray(c.modifiers) ? c.modifiers.filter(Boolean) : [];
+          if (mods.length) {
+            const modRow = document.createElement('div');
+            modRow.style.marginTop = '6px';
+            mods.forEach(m => { const chip = document.createElement('span'); chip.className = 'cpt-modifier'; chip.textContent = '–' + m; modRow.appendChild(chip); });
+            const modLabel = document.createElement('span');
+            modLabel.style.fontSize = '11px'; modLabel.style.color = '#4a5568'; modLabel.style.marginLeft = '4px';
+            modLabel.textContent = 'typical modifier' + (mods.length > 1 ? 's' : '');
+            modRow.appendChild(modLabel);
+            desc.appendChild(modRow);
+          }
+
+          if (c.note) { const n = document.createElement('div'); n.className = 'cpt-note'; n.textContent = c.note; desc.appendChild(n); }
+
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'cpt-copy';
+          copyBtn.textContent = 'Copy';
+          copyBtn.onclick = async () => {
+            const modSuffix = mods.length ? '  (' + mods.map(m => '–' + m).join(', ') + ')' : '';
+            await navigator.clipboard.writeText(`${c.code}  ${c.description}${modSuffix}`);
+            copyBtn.textContent = 'Copied!'; copyBtn.classList.add('copied');
+            setTimeout(() => { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('copied'); }, 1400);
+          };
+
+          row.appendChild(codeEl); row.appendChild(desc); row.appendChild(copyBtn);
+          resultsInner.appendChild(row);
+        }
+      }
+      status.textContent = 'Done.'; status.className = 'status ok';
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message; status.className = 'status error';
+      resultsInner.innerHTML = '';
+      resultsCard.classList.add('empty');
+      resultsInner.textContent = 'Enter a description above and click Look up.';
+    } finally {
+      lookupBtn.disabled = false;
+    }
+  };
+})();
+</script>
+</body>
+</html>

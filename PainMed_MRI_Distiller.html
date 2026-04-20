@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRI Distiller — PainMed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', Arial, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+  .hdr { background: #161b24; border-bottom: 1px solid #2a3040; padding: 14px 28px; position: sticky; top: 0; z-index: 100; }
+  .hdr-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 18px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #4a5568; text-decoration: none; transition: color 0.15s; padding: 6px 10px; border-radius: 6px; border: 1px solid #2a3040; background: #1e2433; }
+  .back-link:hover { color: #60a5fa; border-color: #60a5fa; }
+  .hdr-title { font-size: 14px; font-weight: 600; color: #cbd5e1; }
+  .hdr-title .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: #374151; display: block; margin-bottom: 2px; }
+  .live-badge { display: inline-block; font-size: 9px; font-weight: 600; background: #0d1e35; color: #60a5fa; border: 1px solid #1e3a5f; border-radius: 4px; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
+
+  main { max-width: 1200px; margin: 28px auto; padding: 0 28px; display: grid; grid-template-columns: 380px 1fr; gap: 20px; align-items: start; }
+  .card { background: #161b24; border: 1px solid #2a3040; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: #374151; }
+  .card-sub { font-size: 12px; color: #4a5568; line-height: 1.5; margin-top: -8px; }
+
+  label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #4a5568; margin-bottom: 4px; display: block; }
+
+  .drop-zone { border: 1.5px dashed #2a3040; border-radius: 8px; padding: 28px 14px; text-align: center; cursor: pointer; transition: background 0.15s, border-color 0.15s; background: #1e2433; }
+  .drop-zone:hover, .drop-zone.drag-over { background: #1a2535; border-color: #60a5fa; }
+  .drop-icon { font-size: 30px; margin-bottom: 8px; display: block; }
+  .drop-label { font-size: 13px; font-weight: 500; color: #cbd5e1; margin-bottom: 2px; }
+  .drop-hint { font-size: 11px; color: #4a5568; }
+  .file-row { display: flex; align-items: center; gap: 10px; background: #1e2433; border: 1px solid #2a3040; border-radius: 8px; padding: 10px 12px; }
+  .file-name { flex: 1; font-size: 12px; color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-size { font-size: 11px; color: #374151; white-space: nowrap; }
+  .file-remove { background: none; border: none; cursor: pointer; color: #374151; font-size: 17px; line-height: 1; padding: 0 2px; transition: color 0.1s; }
+  .file-remove:hover { color: #ef4444; }
+  textarea { width: 100%; background: #1e2433; border: 1px solid #2a3040; border-radius: 6px; color: #e2e8f0; padding: 10px 12px; font-family: 'DM Sans', Arial, sans-serif; font-size: 12px; outline: none; transition: border-color 0.15s; resize: vertical; min-height: 120px; line-height: 1.5; }
+  textarea:focus { border-color: #60a5fa; }
+
+  .btn-row { display: flex; gap: 10px; align-items: center; }
+  .btn-primary { padding: 10px 18px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', Arial, sans-serif; border-radius: 8px; border: none; background: #60a5fa; color: #0f1117; cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+  .btn-primary:hover:not(:disabled) { background: #3b82f6; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-secondary { padding: 10px 14px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', Arial, sans-serif; border-radius: 8px; border: 1px solid #2a3040; background: #1e2433; color: #94a3b8; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .btn-secondary:hover { border-color: #60a5fa; color: #60a5fa; }
+  .status { font-size: 11px; color: #4a5568; min-height: 14px; }
+  .status.sending { color: #f59e0b; }
+  .status.error { color: #ef4444; }
+  .status.ok { color: #60a5fa; }
+
+  .results-grid { display: flex; flex-direction: column; gap: 20px; }
+
+  .output-area { background: #1e2433; border: 1px solid #2a3040; border-radius: 6px; padding: 14px 16px; font-size: 13px; line-height: 1.65; color: #e2e8f0; min-height: 200px; white-space: pre-wrap; word-wrap: break-word; }
+  .output-area.empty { color: #4a5568; font-style: italic; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 160px; }
+
+  .icd-list { display: flex; flex-direction: column; gap: 8px; }
+  .icd-item { background: #1e2433; border: 1px solid #2a3040; border-radius: 8px; padding: 10px 14px; display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; }
+  .icd-code { font-family: 'DM Sans', sans-serif; font-weight: 700; color: #60a5fa; font-size: 13px; letter-spacing: 0.5px; }
+  .icd-desc { font-size: 12.5px; color: #cbd5e1; line-height: 1.5; }
+  .icd-note { font-size: 11px; color: #4a5568; margin-top: 2px; font-style: italic; }
+
+  .inline-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <a class="back-link" href="index.html">← Dashboard</a>
+    <div class="hdr-title">
+      <span class="tag">Clinical Documentation</span>
+      MRI Distiller<span class="live-badge">Live</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div>
+      <div class="card-title">Input</div>
+      <div class="card-sub">Upload a PDF MRI report. Text is extracted in the browser, then summarized by AI.</div>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+      <span class="drop-icon">📄</span>
+      <div class="drop-label">Drop PDF here</div>
+      <div class="drop-hint">or click to browse</div>
+      <input type="file" id="fileInput" accept=".pdf,application/pdf" style="display:none">
+    </div>
+
+    <div id="fileRow" class="file-row" style="display:none;">
+      <span class="file-name" id="fileName">—</span>
+      <span class="file-size" id="fileSize"></span>
+      <button class="file-remove" id="fileRemove" title="Remove">&times;</button>
+    </div>
+
+    <div>
+      <label>Extracted text (editable)</label>
+      <textarea id="extractedText" placeholder="Upload a PDF, or paste the MRI report text directly..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="distillBtn" disabled>Distill</button>
+      <button class="btn-secondary" id="clearBtn">Clear</button>
+      <span class="status" id="status"></span>
+    </div>
+  </section>
+
+  <section class="results-grid">
+    <div class="card">
+      <div class="inline-row">
+        <div>
+          <div class="card-title">Clinical Findings Summary</div>
+          <div class="card-sub">Structured impression for spine MRIs · free text for brain/extremities.</div>
+        </div>
+        <button class="btn-secondary" id="copyFindings" disabled>Copy</button>
+      </div>
+      <div class="output-area empty" id="findingsOut">Findings summary will appear here.</div>
+    </div>
+
+    <div class="card">
+      <div class="inline-row">
+        <div>
+          <div class="card-title">Suggested ICD-10 Codes</div>
+          <div class="card-sub">Code + description + one-line usage note.</div>
+        </div>
+        <button class="btn-secondary" id="copyIcd" disabled>Copy</button>
+      </div>
+      <div class="output-area empty" id="icdOut">ICD-10 suggestions will appear here.</div>
+    </div>
+  </section>
+</main>
+
+<script src="widget_common.js"></script>
+<script>
+(function () {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const fileRow = document.getElementById('fileRow');
+  const fileName = document.getElementById('fileName');
+  const fileSize = document.getElementById('fileSize');
+  const fileRemove = document.getElementById('fileRemove');
+  const extractedText = document.getElementById('extractedText');
+  const distillBtn = document.getElementById('distillBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const status = document.getElementById('status');
+  const findingsOut = document.getElementById('findingsOut');
+  const icdOut = document.getElementById('icdOut');
+  const copyFindings = document.getElementById('copyFindings');
+  const copyIcd = document.getElementById('copyIcd');
+
+  function fmtBytes(n) { if (n < 1024) return n + ' B'; if (n < 1048576) return (n/1024).toFixed(1) + ' KB'; return (n/1048576).toFixed(1) + ' MB'; }
+
+  function enableDistill() { distillBtn.disabled = !extractedText.value.trim(); }
+  extractedText.addEventListener('input', enableDistill);
+
+  async function readPdf(file) {
+    status.textContent = 'Reading PDF…';
+    status.className = 'status sending';
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const text = content.items.map(it => it.str).join(' ');
+        pages.push(text);
+      }
+      extractedText.value = pages.join('\n\n').replace(/\s+\n/g, '\n').trim();
+      enableDistill();
+      status.textContent = `Extracted ${pdf.numPages} page(s).`;
+      status.className = 'status ok';
+    } catch (e) {
+      status.textContent = 'PDF error: ' + e.message;
+      status.className = 'status error';
+    }
+  }
+
+  function handleFile(file) {
+    if (!file || file.type !== 'application/pdf') { status.textContent = 'Please drop a PDF.'; status.className = 'status error'; return; }
+    fileRow.style.display = 'flex';
+    fileName.textContent = file.name;
+    fileSize.textContent = fmtBytes(file.size);
+    readPdf(file);
+  }
+
+  dropZone.onclick = () => fileInput.click();
+  fileInput.onchange = (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); };
+  ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); }));
+  ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); }));
+  dropZone.addEventListener('drop', (e) => { if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+  fileRemove.onclick = () => {
+    fileRow.style.display = 'none';
+    fileInput.value = '';
+    extractedText.value = '';
+    enableDistill();
+    status.textContent = '';
+    status.className = 'status';
+  };
+
+  clearBtn.onclick = () => {
+    fileRow.style.display = 'none';
+    fileInput.value = '';
+    extractedText.value = '';
+    findingsOut.textContent = 'Findings summary will appear here.'; findingsOut.classList.add('empty');
+    icdOut.textContent = 'ICD-10 suggestions will appear here.'; icdOut.classList.add('empty');
+    copyFindings.disabled = true; copyIcd.disabled = true;
+    status.textContent = ''; status.className = 'status';
+    enableDistill();
+  };
+
+  copyFindings.onclick = async () => {
+    await navigator.clipboard.writeText(findingsOut.textContent);
+    const o = copyFindings.textContent; copyFindings.textContent = 'Copied!'; setTimeout(() => copyFindings.textContent = o, 1400);
+  };
+  copyIcd.onclick = async () => {
+    await navigator.clipboard.writeText(icdOut.textContent);
+    const o = copyIcd.textContent; copyIcd.textContent = 'Copied!'; setTimeout(() => copyIcd.textContent = o, 1400);
+  };
+
+  const ICD_REFERENCE = `ICD-10 REFERENCE for spinal MRI findings — use these exact codes when a finding maps to one of them.
+Cervical spine:
+  M50.20 — Other cervical disc displacement, unspecified cervical region
+  M50.90 — Cervical disc disorder, unspecified
+  M99.71 — Connective tissue and disc stenosis of cervical intervertebral foramina
+  M99.51 — Intervertebral disc stenosis of neural canal of cervical region
+  S13.0XXA — Traumatic rupture of cervical intervertebral disc
+  S14.2XXA — Injury of nerve root of cervical spine
+  G95.20 — Cord compression, unspecified
+Thoracic spine:
+  M51.24 — Other intervertebral disc displacement, thoracic region
+  M51.84 — Other intervertebral disc disorders, thoracic region
+  M99.72 — Connective tissue and disc stenosis of thoracic intervertebral foramina
+  M99.52 — Intervertebral disc stenosis of neural canal of thoracic region
+  S23.0XXA — Traumatic rupture of thoracic intervertebral disc
+  S22.000A — Wedge compression fracture of unspecified thoracic vertebra
+Lumbar spine:
+  M51.26 — Other intervertebral disc displacement, lumbar region (herniation)
+  M51.86 — Other intervertebral disc disorders, lumbar region (bulge)
+  S33.0XXA — Traumatic rupture of lumbar intervertebral disc
+  M99.53 — Intervertebral disc stenosis of neural canal of lumbar region
+  S34.21XA — Injury of nerve root of lumbar spine
+  S34.22XA — Injury of nerve root of sacral spine
+  M51.A3 — Intervertebral annulus fibrosus defect, small, lumbar region (annular tear)
+  M99.73 — Connective tissue and disc stenosis of lumbar intervertebral foramina`;
+
+  const SYSTEM_PROMPT = `You are a clinical documentation assistant that distills MRI reports into a structured impression plus ICD-10 suggestions.
+
+OUTPUT: Return ONLY a JSON object with exactly these two keys:
+  "findings"  — string, the findings summary.
+  "codes"     — array of objects, each { "code": "...", "description": "...", "note": "..." }.
+
+FINDINGS FORMAT (spine MRIs — cervical, thoracic, lumbar):
+Start with: "Today I reviewed an MRI of [body part] from [imaging center]. Pertinent findings include:"
+Then produce these bullet lines, in this order, ONLY if findings exist for that category. Each bullet reads exactly like:
+  • Bulging of the discs with thecal sac impression at [levels with laterality]
+  • Herniations of the disc with thecal sac impression at [levels with laterality]
+  • IVF stenosis associated with disc pathology is seen at [levels with laterality]
+  • Spinal stenosis associated with disc pathology is seen at [levels with laterality]
+  • Additional findings include: [nerve compression / cord compression / incidental findings / ligament signal changes]
+
+RULES:
+- Multiple levels with the same finding → one bullet, all levels listed together.
+- Include laterality (right / left / bilateral / central) whenever specified.
+- Normal levels: omit.
+- Any bullet category with no findings: omit the entire bullet.
+- No findings of any kind: output exactly "Unremarkable MRI of the [body part]" for the findings value.
+- Omit the "Additional findings" bullet if there's nothing clinically significant.
+
+BRAIN / EXTREMITY MRIs:
+Skip the structured spine template. Return a clean 2–5 sentence clinical summary of the impression section written like a physician dictating. Start with "Today I reviewed an MRI of [body part] from [imaging center]." then summarize the impression.
+
+ICD-10 CODES:
+Suggest only codes that match findings present in this report. Prefer the reference codes below for spinal findings. Never invent codes. If a finding doesn't match any reference code, use the most specific real ICD-10-CM code you're confident in.
+For each code, include a short "note" explaining when this code is the right pick (one line).
+
+${ICD_REFERENCE}`;
+
+  distillBtn.onclick = async () => {
+    const text = extractedText.value.trim();
+    if (!text) return;
+    distillBtn.disabled = true;
+    status.textContent = 'Distilling…';
+    status.className = 'status sending';
+    findingsOut.textContent = ''; findingsOut.classList.remove('empty');
+    icdOut.textContent = ''; icdOut.classList.remove('empty');
+    copyFindings.disabled = true; copyIcd.disabled = true;
+
+    try {
+      const raw = await callAnthropic({
+        system: SYSTEM_PROMPT,
+        user: `MRI report text:\n\n${text}\n\nReturn the JSON object described in the system prompt. No prose outside the JSON.`,
+        max_tokens: 2500,
+        temperature: 0.2
+      });
+      const parsed = extractJson(raw);
+      if (!parsed || !parsed.findings) throw new Error('Could not parse AI response.');
+
+      findingsOut.textContent = parsed.findings;
+      copyFindings.disabled = false;
+
+      const codes = Array.isArray(parsed.codes) ? parsed.codes : [];
+      if (!codes.length) {
+        icdOut.textContent = '(No ICD-10 codes suggested.)';
+      } else {
+        icdOut.innerHTML = '';
+        icdOut.classList.remove('empty');
+        icdOut.style.whiteSpace = 'normal';
+        icdOut.style.display = 'block';
+        const list = document.createElement('div');
+        list.className = 'icd-list';
+        for (const c of codes) {
+          const row = document.createElement('div');
+          row.className = 'icd-item';
+          const codeEl = document.createElement('div'); codeEl.className = 'icd-code'; codeEl.textContent = c.code || '';
+          const desc = document.createElement('div');
+          const descTop = document.createElement('div'); descTop.className = 'icd-desc'; descTop.textContent = c.description || '';
+          desc.appendChild(descTop);
+          if (c.note) { const n = document.createElement('div'); n.className = 'icd-note'; n.textContent = c.note; desc.appendChild(n); }
+          row.appendChild(codeEl); row.appendChild(desc);
+          list.appendChild(row);
+        }
+        icdOut.appendChild(list);
+        copyIcd.disabled = false;
+        copyIcd._plain = codes.map(c => `${c.code}  ${c.description}${c.note ? '  — ' + c.note : ''}`).join('\n');
+      }
+
+      copyIcd.onclick = async () => {
+        await navigator.clipboard.writeText(copyIcd._plain || icdOut.textContent);
+        const o = copyIcd.textContent; copyIcd.textContent = 'Copied!'; setTimeout(() => copyIcd.textContent = o, 1400);
+      };
+
+      status.textContent = 'Done.'; status.className = 'status ok';
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message; status.className = 'status error';
+      findingsOut.textContent = 'Findings summary will appear here.'; findingsOut.classList.add('empty');
+      icdOut.textContent = 'ICD-10 suggestions will appear here.'; icdOut.classList.add('empty');
+    } finally {
+      distillBtn.disabled = !extractedText.value.trim();
+    }
+  };
+})();
+</script>
+</body>
+</html>

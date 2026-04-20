@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Polish — PainMed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', Arial, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+  .hdr { background: #161b24; border-bottom: 1px solid #2a3040; padding: 14px 28px; position: sticky; top: 0; z-index: 100; }
+  .hdr-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 18px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #4a5568; text-decoration: none; transition: color 0.15s; padding: 6px 10px; border-radius: 6px; border: 1px solid #2a3040; background: #1e2433; }
+  .back-link:hover { color: #60a5fa; border-color: #60a5fa; }
+  .hdr-title { font-size: 14px; font-weight: 600; color: #cbd5e1; }
+  .hdr-title .tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: #374151; display: block; margin-bottom: 2px; }
+  .live-badge { display: inline-block; font-size: 9px; font-weight: 600; background: #0d1e35; color: #60a5fa; border: 1px solid #1e3a5f; border-radius: 4px; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
+
+  main { max-width: 1100px; margin: 28px auto; padding: 0 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card { background: #161b24; border: 1px solid #2a3040; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.4px; color: #374151; }
+  .card-sub { font-size: 12px; color: #4a5568; line-height: 1.5; margin-top: -8px; }
+  label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #4a5568; margin-bottom: 4px; display: block; }
+  textarea { width: 100%; background: #1e2433; border: 1px solid #2a3040; border-radius: 6px; color: #e2e8f0; padding: 10px 12px; font-family: 'DM Sans', Arial, sans-serif; font-size: 13px; outline: none; transition: border-color 0.15s; resize: vertical; min-height: 320px; line-height: 1.5; }
+  textarea:focus { border-color: #60a5fa; }
+  .btn-row { display: flex; gap: 10px; align-items: center; }
+  .btn-primary { padding: 10px 18px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', Arial, sans-serif; border-radius: 8px; border: none; background: #60a5fa; color: #0f1117; cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+  .btn-primary:hover:not(:disabled) { background: #3b82f6; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-secondary { padding: 10px 14px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', Arial, sans-serif; border-radius: 8px; border: 1px solid #2a3040; background: #1e2433; color: #94a3b8; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .btn-secondary:hover { border-color: #60a5fa; color: #60a5fa; }
+  .status { font-size: 11px; color: #4a5568; min-height: 14px; }
+  .status.sending { color: #f59e0b; }
+  .status.error { color: #ef4444; }
+  .status.ok { color: #60a5fa; }
+  .output-area { background: #1e2433; border: 1px solid #2a3040; border-radius: 6px; padding: 12px 14px; font-size: 13px; line-height: 1.6; color: #e2e8f0; min-height: 320px; max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
+  .output-area.empty { color: #4a5568; font-style: italic; display: flex; align-items: center; justify-content: center; text-align: center; }
+
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <a class="back-link" href="index.html">← Dashboard</a>
+    <div class="hdr-title">
+      <span class="tag">Clinical Documentation</span>
+      Clinical Polish<span class="live-badge">Live</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div>
+      <div class="card-title">Input</div>
+      <div class="card-sub">Paste free text. AI rewrites it as fluent, natural clinical English — without adding any clinical content that wasn't already there.</div>
+    </div>
+    <div>
+      <label>Source text</label>
+      <textarea id="sourceText" placeholder="Paste rough notes, broken English, or anything you'd like polished into clean clinical prose..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="polishBtn">Polish</button>
+      <button class="btn-secondary" id="clearBtn">Clear</button>
+      <span class="status" id="status"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div>
+      <div class="card-title">Polished output</div>
+      <div class="card-sub">Same content, cleaner language. Copy-paste ready.</div>
+    </div>
+    <div>
+      <label>Result</label>
+      <div class="output-area empty" id="outputArea">Polished text will appear here.</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" id="copyBtn" disabled>Copy</button>
+    </div>
+  </section>
+</main>
+
+<script src="widget_common.js"></script>
+<script>
+(function () {
+  const srcEl = document.getElementById('sourceText');
+  const outEl = document.getElementById('outputArea');
+  const btn = document.getElementById('polishBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const status = document.getElementById('status');
+
+  clearBtn.onclick = () => {
+    srcEl.value = '';
+    outEl.textContent = 'Polished text will appear here.';
+    outEl.classList.add('empty');
+    status.textContent = ''; status.className = 'status';
+    copyBtn.disabled = true;
+  };
+
+  copyBtn.onclick = async () => {
+    await navigator.clipboard.writeText(outEl.textContent);
+    const orig = copyBtn.textContent;
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => copyBtn.textContent = orig, 1400);
+  };
+
+  btn.onclick = async () => {
+    const text = srcEl.value.trim();
+    if (!text) { status.textContent = 'Paste some text first.'; status.className = 'status error'; return; }
+
+    btn.disabled = true;
+    status.textContent = 'Polishing…';
+    status.className = 'status sending';
+    outEl.textContent = '';
+    outEl.classList.remove('empty');
+    copyBtn.disabled = true;
+
+    const system = `You rewrite clinical text as fluent, natural American medical English at the level of a well-trained American physician.
+
+STRICT RULES:
+1. Do NOT add any clinical content, findings, diagnoses, measurements, or assertions that were not already in the source text. If the source is vague, the output stays vague — don't invent specifics.
+2. Do NOT remove clinical content that was in the source.
+3. Fix grammar, spelling, syntax, word choice, and phrasing so the text reads like a native American physician wrote it.
+4. Preserve numbers, dates, medication names, codes, and proper nouns exactly.
+5. Keep the same overall structure and order of information as the source.
+6. Return ONLY the polished text. No preamble, no headers, no commentary.`;
+
+    try {
+      const out = await callAnthropic({
+        system,
+        user: `Polish this text into fluent, natural clinical English. Do not add any clinical content.\n\n${text}`,
+        max_tokens: 2000,
+        temperature: 0.4
+      });
+      outEl.textContent = out;
+      status.textContent = 'Done.';
+      status.className = 'status ok';
+      copyBtn.disabled = false;
+    } catch (e) {
+      status.textContent = 'Error: ' + e.message;
+      status.className = 'status error';
+      outEl.textContent = 'Polished text will appear here.';
+      outEl.classList.add('empty');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+})();
+</script>
+</body>
+</html>
