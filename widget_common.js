@@ -3,7 +3,7 @@
 // Anthropic API key server-side. Worker secret matches the rest of the
 // dashboard; CORS on the Worker is locked to drberns.github.io.
 (function () {
-  const WORKER_URL    = 'https://spinemed-imap-worker.drberns.workers.dev';
+  const WORKER_URL    = 'https://spinemed-anthropic-proxy.drberns.workers.dev';
   const WORKER_SECRET = 'SpineMed2026';
   const MODEL         = 'claude-sonnet-4-6';
 
