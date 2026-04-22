@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<!-- saved from url=(0020)https://example.com/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>PainMed · Signature Packet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1a4fa0; --blue:#1E5FA8; --lblue:#EAF0FB;
+  --green:#2e7d32; --dgreen:#1f5522; --lgreen:#e8f5ee; --mgreen:#a5d6a7;
+  --red:#c0392b; --lred:#fdf3f3;
+  --gray:#5a6a7d; --lgray:#f4f6f9; --border:#cdd5e0;
+  --white:#fff; --radius:14px; --shadow:0 4px 24px rgba(46,125,50,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--lgray);color:#1a2535;min-height:100vh;}
+.hdr{background:var(--white);border-bottom:3px solid var(--green);position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(46,125,50,0.11);}
+.hdr-inner{max-width:920px;margin:0 auto;padding:0 20px;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px;gap:14px;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{line-height:1;}
+.brand-mark .sp{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;}
+.brand-mark .me{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--green);letter-spacing:-0.5px;}
+.brand-mark .d{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;}
+.brand-sub{font-size:10.5px;color:var(--gray);margin-top:2px;letter-spacing:0.2px;text-transform:uppercase;font-weight:600;}
+.pkt-badge{display:inline-block;background:var(--lgreen);color:var(--dgreen);padding:3px 10px;border-radius:50px;font-size:9.5px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;margin-left:8px;border:1px solid var(--mgreen);}
+.hdr-right{text-align:right;}
+.hdr-step-lbl{font-size:10.5px;color:var(--gray);}
+.hdr-step-name{font-size:13.5px;font-weight:700;color:var(--green);margin-top:1px;}
+.prog-dots{display:flex;gap:4px;padding-bottom:11px;}
+.dot{height:5px;border-radius:3px;background:var(--border);transition:all 0.35s;flex:1;}
+.dot.done{background:var(--mgreen);}
+.dot.active{background:var(--green);}
+.step{display:none;max-width:920px;margin:24px auto;padding:0 20px 110px;}
+.step.active{display:block;animation:fadeUp 0.28s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.card-hdr{background:linear-gradient(135deg,var(--green) 0%,var(--dgreen) 100%);padding:18px 24px 14px;color:var(--white);}
+.card-hdr h2{font-family:'Libre Baskerville',serif;font-size:19px;font-weight:400;margin-bottom:3px;}
+.card-hdr p{font-size:12px;opacity:0.85;line-height:1.5;}
+.card-hdr .ver{font-size:10.5px;opacity:0.7;margin-top:4px;font-family:'DM Sans',sans-serif;}
+.card-body{padding:22px 26px;}
+.doc-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;}
+.doc-hdr{background:linear-gradient(135deg,var(--green) 0%,var(--dgreen) 100%);padding:22px 28px 18px;color:var(--white);}
+.doc-hdr .doc-eyebrow{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;opacity:0.85;font-weight:600;}
+.doc-hdr h1{font-family:'Libre Baskerville',serif;font-size:23px;font-weight:700;margin-top:4px;line-height:1.25;}
+.doc-hdr .doc-sub{font-size:12px;opacity:0.92;margin-top:4px;}
+.doc-hdr .doc-ver{font-size:10.5px;opacity:0.72;margin-top:6px;font-family:'DM Sans',sans-serif;letter-spacing:0.3px;}
+.doc-body{padding:24px 30px 22px;font-size:14px;line-height:1.65;color:#2a3240;}
+.doc-body p{margin-bottom:11px;}
+.doc-body h3{font-family:'Libre Baskerville',serif;font-size:15px;font-weight:700;color:var(--dgreen);margin-top:16px;margin-bottom:8px;padding-bottom:5px;border-bottom:1.5px solid var(--lgreen);}
+.doc-body ul, .doc-body ol{margin-left:22px;margin-bottom:11px;}
+.doc-body ul li, .doc-body ol li{margin-bottom:5px;line-height:1.55;}
+.doc-body strong{color:#1a2535;font-weight:700;}
+.doc-body .pt-chip{display:inline-block;padding:2px 8px;background:var(--lgreen);border:1px solid var(--mgreen);color:var(--dgreen);border-radius:50px;font-weight:700;font-size:13px;}
+.doc-body .alert{background:#fff9e6;border:1.5px solid #d4a017;border-radius:8px;padding:10px 14px;margin:12px 0;font-size:13px;line-height:1.6;color:#6b4d00;}
+.doc-body .alert strong{color:#6b4d00;}
+.fg{display:grid;gap:14px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.s2{grid-column:span 2;}
+.s3{grid-column:span 3;}
+.f{display:flex;flex-direction:column;gap:5px;}
+.f label{font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.8px;}
+.f label .req{color:var(--red);margin-left:2px;}
+.fi,.fsel,.fta{border:1.5px solid var(--border);border-radius:9px;padding:11px 14px;font-size:15px;font-family:'DM Sans',sans-serif;color:#1a2535;background:var(--lgray);outline:none;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;width:100%;}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--green);background:var(--white);box-shadow:0 0 0 3px rgba(46,125,50,0.12);}
+.fi.locked{background:#f0f4ef;color:#3b4a3d;cursor:not-allowed;}
+.fta{min-height:64px;resize:vertical;}
+.divider{border:none;border-top:1.5px solid var(--border);margin:18px 0;}
+.sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:11px;padding-bottom:5px;border-bottom:2px solid var(--lgreen);}
+.office-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.office-card{border:2px solid var(--border);border-radius:11px;padding:14px 16px;background:var(--white);cursor:pointer;transition:all 0.15s;}
+.office-card:hover{border-color:var(--green);background:var(--lgreen);}
+.office-card.selected{border-color:var(--green);background:var(--lgreen);box-shadow:0 0 0 3px rgba(46,125,50,0.10);}
+.oc-name{font-weight:700;font-size:14px;color:var(--dgreen);margin-bottom:4px;}
+.oc-addr{font-size:11.5px;color:var(--gray);line-height:1.55;}
+.toggle-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border:2px solid var(--border);border-radius:50px;font-size:12.5px;font-weight:600;cursor:pointer;background:var(--lgray);color:var(--gray);transition:all 0.15s;margin-bottom:12px;font-family:'DM Sans',sans-serif;}
+.toggle-btn:hover{border-color:var(--gray);color:#3a4a5a;}
+.toggle-btn.on{background:var(--lgreen);border-color:var(--green);color:var(--dgreen);}
+.toggle-btn.on::before{content:"&#10003;";font-weight:800;}
+.sig-block{margin-top:18px;padding:16px 18px;background:var(--lgreen);border:2px solid var(--green);border-radius:10px;}
+.sig-block-title{font-size:11px;font-weight:700;color:var(--dgreen);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+.sig-pair{display:grid;grid-template-columns:1fr 180px 140px;gap:12px;align-items:end;}
+.sig-line{border-bottom:1.5px solid #1a2535;min-height:34px;padding:4px 6px;font-family:'Libre Baskerville',serif;font-style:italic;font-size:18px;color:#1a2535;}
+.sig-line-lbl{font-size:9.5px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.6px;margin-top:4px;text-align:center;}
+.sig-input{border:none;border-bottom:1.5px solid #1a2535;background:transparent;font-family:'Libre Baskerville',serif;font-style:italic;font-size:18px;color:#1a2535;width:100%;padding:4px 6px;outline:none;}
+.sig-input:focus{border-bottom-color:var(--green);background:rgba(255,255,255,0.5);}
+.sig-input-print{font-family:'DM Sans',sans-serif;font-style:normal;font-size:15px;font-weight:500;}
+.sig-attest{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 12px;background:var(--white);border-radius:8px;border:1px solid var(--mgreen);}
+.sig-attest input[type=checkbox]{width:18px;height:18px;accent-color:var(--green);cursor:pointer;flex-shrink:0;margin-top:1px;}
+.sig-attest label{font-size:12.5px;line-height:1.5;cursor:pointer;}
+.guardian-block{margin-top:14px;padding:12px 14px;background:var(--white);border:1px solid var(--mgreen);border-radius:8px;}
+.guardian-toggle{font-size:11.5px;color:var(--dgreen);font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.6px;display:flex;align-items:center;gap:7px;}
+.guardian-toggle::before{content:"+";font-size:15px;line-height:1;}
+.guardian-toggle.open::before{content:"&#8722;";}
+.guardian-body{display:none;margin-top:10px;}
+.guardian-body.show{display:block;}
+.radio-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.radio-chip{padding:6px 12px;border:1.5px solid var(--border);border-radius:50px;font-size:11.5px;font-weight:600;cursor:pointer;background:var(--lgray);color:var(--gray);transition:all 0.15s;}
+.radio-chip:hover{border-color:var(--green);}
+.radio-chip.on{background:var(--green);color:var(--white);border-color:var(--green);}
+.navbar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--green);padding:12px 20px;box-shadow:0 -4px 18px rgba(46,125,50,0.10);z-index:90;}
+.navbar-inner{max-width:920px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.navbar-status{font-size:11.5px;color:var(--gray);}
+.navbar-status b{color:var(--green);}
+.navbar-btns{display:flex;gap:10px;}
+.btn{padding:12px 22px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;letter-spacing:0.2px;}
+.btn-back{background:var(--lgray);color:var(--gray);border:1.5px solid var(--border);}
+.btn-back:hover{background:var(--white);border-color:var(--gray);color:#3a4a5a;}
+.btn-next{background:linear-gradient(135deg,var(--green),var(--dgreen));color:var(--white);box-shadow:0 3px 12px rgba(46,125,50,0.30);}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(46,125,50,0.40);}
+.btn-pdf{background:linear-gradient(135deg,#1a4fa0,#0d3a7d);color:var(--white);}
+.review-row{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border);}
+.review-row:last-child{border-bottom:none;}
+.review-doc{font-size:14px;font-weight:600;color:#1a2535;}
+.review-status{font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:0.4px;}
+.review-status.signed{background:var(--lgreen);color:var(--dgreen);border:1px solid var(--mgreen);}
+.review-status.unsigned{background:var(--lred);color:var(--red);border:1px solid #f0b0a8;}
+.review-jump{font-size:11.5px;color:var(--green);font-weight:600;cursor:pointer;text-decoration:underline;margin-left:10px;}
+.doc-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;background:rgba(255,255,255,0.22);color:var(--white);padding:3px 10px;border-radius:50px;margin-bottom:8px;}
+.pt-bar{background:var(--lgreen);border:1px solid var(--mgreen);border-radius:10px;padding:10px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:12.5px;}
+.pt-bar-item{display:flex;flex-direction:column;gap:2px;}
+.pt-bar-lbl{font-size:9px;font-weight:700;color:var(--dgreen);text-transform:uppercase;letter-spacing:0.6px;}
+.pt-bar-val{font-weight:600;color:#1a2535;}
+.note-pill{display:inline-block;font-size:11px;padding:4px 10px;background:var(--lblue);color:var(--navy);border:1px solid #b8c7e0;border-radius:50px;font-weight:600;}
+.danger-banner{background:#fffbe6;border:1.5px solid #d4a017;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:#6b4d00;line-height:1.5;}
+.info-banner{background:var(--lblue);border:1.5px solid #b8c7e0;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:var(--navy);line-height:1.5;}
+.info-banner strong{color:var(--navy);}
+.yn-pair{display:flex;gap:12px;margin:8px 0;}
+.yn-option{flex:1;padding:12px 14px;border:2px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:10px;}
+.yn-option:hover{border-color:var(--green);}
+.yn-option.on{border-color:var(--green);background:var(--lgreen);}
+.yn-option.on.no{border-color:var(--gray);background:#eef0f2;}
+.yn-option input{display:none;}
+.yn-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;position:relative;}
+.yn-option.on .yn-dot{border-color:var(--green);}
+.yn-option.on.no .yn-dot{border-color:var(--gray);}
+.yn-option.on .yn-dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--green);}
+.yn-option.on.no .yn-dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--gray);}
+.yn-label{font-size:13.5px;font-weight:600;color:#1a2535;}
+.yn-sublabel{font-size:11px;color:var(--gray);margin-top:2px;}
+@media (max-width:760px){
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .office-grid{grid-template-columns:1fr;}
+  .sig-pair{grid-template-columns:1fr;}
+  .doc-body{padding:18px 20px;}
+  .hdr-step-lbl,.hdr-step-name{font-size:11px;}
+}
+/* &#9472;&#9472; CANVAS SIGNATURE PAD &#9472;&#9472; */
+.sig-canvas-wrap{position:relative;background:#fff;border:1.5px solid #1a2535;border-radius:6px;overflow:hidden;touch-action:none;}
+.sig-canvas{display:block;cursor:crosshair;touch-action:none;}
+.sig-canvas-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#aaa;font-family:'DM Sans',sans-serif;pointer-events:none;}
+/* &#9472;&#9472; FIX: Signature alignment &#9472;&#9472; */
+.sig-canvas-clear{font-size:11px;font-weight:700;color:var(--gray);background:rgba(255,255,255,0.85);border:1px solid var(--border);border-radius:6px;padding:2px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;position:absolute;top:3px;right:4px;z-index:10;}
+.sig-pair > div:not(:first-child){display:flex;flex-direction:column;justify-content:flex-end;align-self:stretch;}
+/* &#9472;&#9472; PDF render rules (apply when exporting) &#9472;&#9472; */
+.pdf-mode .navbar{display:none;}
+.pdf-mode .hdr{position:static;}
+.pdf-mode .step{display:block !important;page-break-after:always;}
+.pdf-mode .step:last-child{page-break-after:auto;}
+@media (max-width: 1024px) {
+  .btn-pdf-download { display: none !important; }
+}
+</style>
+<style id="claude-agent-animation-styles">
+      @keyframes claude-pulse {
+        0% {
+          box-shadow:
+            inset 0 0 10px rgba(217, 119, 87, 0.5),
+            inset 0 0 20px rgba(217, 119, 87, 0.3),
+            inset 0 0 30px rgba(217, 119, 87, 0.1);
+        }
+        50% {
+          box-shadow:
+            inset 0 0 15px rgba(217, 119, 87, 0.7),
+            inset 0 0 25px rgba(217, 119, 87, 0.5),
+            inset 0 0 35px rgba(217, 119, 87, 0.2);
+        }
+        100% {
+          box-shadow:
+            inset 0 0 10px rgba(217, 119, 87, 0.5),
+            inset 0 0 20px rgba(217, 119, 87, 0.3),
+            inset 0 0 30px rgba(217, 119, 87, 0.1);
+        }
+      }
+    </style></head>
+
+<body>
+
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-top">
+      <div class="brand">
+        <div class="brand-mark"><span class="sp" style="font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;">Pain</span><span class="me" style="font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--green);letter-spacing:-0.5px;">Med</span></div>
+        <div>
+          <div class="brand-sub">Suncoast Physical Medicine, LLC D/B/A PainMed</div>
+          <span class="pkt-badge">Signature Packet</span>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <div class="hdr-step-lbl" id="hdr-step-num">Step 6 of 9</div>
+        <div class="hdr-step-name" id="hdr-step-name">Records Release · Incoming</div>
+      </div>
+    </div>
+    <div class="prog-dots" id="prog-dots"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+</div>
+
+<!-- STEP 1 · COVER SHEET -->
+<section class="step" data-step="1">
+  <div class="card">
+    <div class="card-hdr">
+      <h2>Cover Sheet</h2>
+      <p>Enter patient, attorney, and insurance information once. This information will populate all signature documents in the packet.</p>
+      <div class="ver">Signature Packet v_04.13.26 · PainMed</div>
+    </div>
+    <div class="card-body">
+      <div class="sec-lbl">Patient Information</div>
+      <div class="fg g3">
+        <div class="f s2"><label>Patient Full Legal Name <span class="req">*</span></label><input class="fi" id="pt_name" placeholder="First Middle Last" oninput="syncAll()"></div>
+        <div class="f"><label>Date of Birth <span class="req">*</span></label><input class="fi" id="pt_dob" placeholder="MM-DD-YYYY" oninput="fmtDate(this);syncAll()" maxlength="10"></div>
+      </div>
+      <div class="fg g2" style="margin-top:14px;">
+        <div class="f"><label>Date of Loss (Accident Date) <span class="req">*</span></label><input class="fi" id="pt_dol" placeholder="MM-DD-YYYY" oninput="fmtDate(this);syncAll()" maxlength="10"></div>
+        <div class="f"><label>Today's Date <span class="req">*</span></label><input class="fi" id="pt_today" placeholder="MM-DD-YYYY" oninput="fmtDate(this);syncAll()" maxlength="10"></div>
+      </div>
+      <hr class="divider">
+      <div class="sec-lbl">Receiving Office</div>
+      <div class="office-grid">
+        <div class="office-card" id="oc-tampa" onclick="selectOffice(&#39;tampa&#39;)">
+          <div class="oc-name">PainMed — Tampa (138th Ave)</div>
+          <div class="oc-addr">3010 E. 138th Ave, Ste 300<br>Tampa, FL 33613<br>Ph: 813-668-0000 · Fax: 813-668-2978</div>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="sec-lbl">Treating Provider (Optional)</div>
+      <div class="fg g2">
+        <div class="f s2"><label>Provider Name</label>
+          <select class="fsel" id="provider_sel" onchange="selectProvider(this.value)">
+            <option value="">· Select provider (optional) ·</option>
+            <option value="eldeeb">Mohammad Eldeeb, M.D.</option>
+          </select>
+        </div>
+      </div>
+      <div id="provider-display" style="display:none;margin-top:10px;padding:10px 14px;background:var(--lgreen);border:1.5px solid var(--mgreen);border-radius:8px;font-size:12.5px;">
+        <div style="font-size:9.5px;font-weight:700;color:var(--dgreen);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">Selected Provider · will populate IOT form</div>
+        <div style="font-weight:600;color:#1a2535;" id="provider-name-display">·</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:3px;">Provider signature will appear in the PDF output.</div>
+      </div>
+      <hr class="divider">
+      <div class="sec-lbl">Staff Witness (Optional)</div>
+      <div class="fg g2">
+        <div class="f s2"><label>Staff Member Name</label><input class="fi" id="staff_witness" placeholder="If entered, will populate as the witness on all documents" oninput="syncAll()"></div>
+      </div>
+      <hr class="divider">
+      <div class="sec-lbl">Attorney Information</div>
+      <div class="toggle-btn" id="tgl-noatty" onclick="toggleNoAtty()">No Attorney at This Time</div>
+      <div id="atty-fields">
+        <div class="fg g2">
+          <div class="f"><label>Firm Name</label><input class="fi atty-fi" id="atty_firm" placeholder="Firm name" oninput="syncAll()"></div>
+          <div class="f"><label>Attorney Name</label><input class="fi atty-fi" id="atty_name" placeholder="Attorney full name" oninput="syncAll()"></div>
+        </div>
+        <div class="fg g3" style="margin-top:12px;">
+          <div class="f"><label>Phone</label><input class="fi atty-fi" id="atty_phone" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this);syncAll()" maxlength="14"></div>
+          <div class="f"><label>Fax</label><input class="fi atty-fi" id="atty_fax" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this);syncAll()" maxlength="14"></div>
+          <div class="f"><label>Email</label><input class="fi atty-fi" id="atty_email" placeholder="name@firm.com" oninput="syncAll()"></div>
+        </div>
+        <div class="fg" style="margin-top:12px;">
+          <div class="f"><label>Firm Address</label><input class="fi atty-fi" id="atty_addr" placeholder="Street, City, State, Zip" oninput="syncAll()"></div>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="sec-lbl">PIP / Auto Insurance</div>
+      <div class="toggle-btn" id="tgl-noins" onclick="toggleNoIns()">No Insurance at This Time</div>
+      <div id="ins-fields">
+        <div class="fg g2">
+          <div class="f"><label>Insurance Carrier</label><input class="fi ins-fi" id="ins_carrier" placeholder="e.g., State Farm, GEICO" oninput="syncAll()"></div>
+          <div class="f"><label>Claim Number</label><input class="fi ins-fi" id="ins_claim" placeholder="Claim / policy number" oninput="syncAll()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 2 · HIPAA -->
+<section class="step" data-step="2">
+  <div id="pt-bar-2"><div class="pt-bar"><div class="pt-bar-item"><div class="pt-bar-lbl">Patient</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">DOB</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Date of Loss</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Office</div><div class="pt-bar-val">· (none selected)</div></div></div></div>
+  <div class="doc-card">
+    <div class="doc-hdr">
+      <div class="doc-tag">Document 1 of 7</div>
+      <div class="doc-eyebrow">Notice of Privacy Practices</div>
+      <h1>HIPAA Privacy Notice</h1>
+      <div class="doc-sub">How your medical information may be used and disclosed, and how you can access it.</div>
+      <div class="doc-ver">Version v_04.13.26</div>
+    </div>
+    <div class="doc-body">
+      <p><em>This notice describes how medical information about you may be used and disclosed and how you can get access to this information. Please review it carefully.</em></p>
+      <h3>Our Pledge Regarding Your Health Information</h3>
+      <p>We are required by federal and Florida law to maintain the privacy of your protected health information (PHI), to provide you with this Notice of our legal duties and privacy practices, and to follow the terms of the Notice currently in effect. We reserve the right to change this Notice and to make the revised Notice effective for all PHI we maintain. A current copy of this Notice will be posted in our offices and available on request.</p>
+      <h3>How We May Use and Disclose Your Health Information Without Your Authorization</h3>
+      <p><strong>Treatment.</strong> We may use and disclose your PHI to provide, coordinate, or manage your healthcare · for example, sharing records with a referring physician, hospital, imaging center, or specialist involved in your care.</p>
+      <p><strong>Payment.</strong> We may use and disclose your PHI to bill and collect payment from you, your insurance company (including auto/PIP carriers), or other responsible third parties involved in payment for your care, including attorneys when applicable to your case.</p>
+      <p><strong>Healthcare Operations.</strong> We may use and disclose your PHI for quality assessment, staff training, credentialing, licensing, audits, legal services, and other business activities necessary to run our practice.</p>
+      <p><strong>Appointment Reminders &amp; Health-Related Communications.</strong> We may contact you by phone, text, email, or mail regarding appointments, treatment alternatives, or other health-related information. These communications may not be secure.</p>
+      <p><strong>As Required or Permitted by Law.</strong> We may use or disclose your PHI without your authorization when required by court order, public health activities, workers' compensation, law enforcement, or health oversight agencies.</p>
+      <p><strong>All other uses and disclosures require your written authorization,</strong> which you may revoke at any time in writing. We will never sell your PHI or use it for marketing without your authorization.</p>
+      <h3>Your Rights Regarding Your Health Information</h3>
+      <p>You have the right to inspect and copy your health information, request amendments, request an accounting of disclosures, request restrictions, request confidential communications, receive a paper copy of this Notice, and be notified of any breach of your unsecured PHI.</p>
+      <h3>How to File a Complaint</h3>
+      <p>If you believe your privacy rights have been violated, you may file a complaint with our Privacy Officer or with the U.S. Department of Health and Human Services, Office for Civil Rights (www.hhs.gov/ocr).</p>
+      <h3>Contact Information</h3>
+      <p><strong>Privacy Officer</strong><br>Suncoast Physical Medicine, LLC (d/b/a PainMed)<br>
+      <strong>Tampa (138th Ave):</strong> 3010 E. 138th Ave, Ste 300 · Tampa, FL 33613 · Ph: 813-668-0000<br>
+      <strong>Email:</strong> info@painmedtampa.com</p>
+      <h3>Acknowledgment of Receipt</h3>
+      <p>By signing below, I acknowledge that I have received a copy of the PainMed Notice of Privacy Practices (v_04.13.26).</p>
+      <div class="sig-block">
+        <div class="sig-block-title">Patient Acknowledgment · HIPAA</div>
+        <div class="sig-pair">
+          <div>
+            <div class="sig-canvas-wrap" style="height:60px;"><canvas class="sig-canvas" id="sig_hipaa_sig" height="60" data-signed="0" width="436"></canvas><div class="sig-canvas-ph" id="sig_hipaa_sig_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_hipaa_sig&#39;)">Clear</button></div>
+            <div class="sig-line-lbl">Signature</div>
+          </div>
+          <div><input class="sig-input sig-input-print pt-name-pop" placeholder="Printed name"><div class="sig-line-lbl">Printed Name</div></div>
+          <div><input class="sig-input sig-input-print pt-today-pop" placeholder="MM-DD-YYYY"><div class="sig-line-lbl">Date</div></div>
+        </div>
+        <div class="sig-attest">
+          <input type="checkbox" id="attest_hipaa" onchange="updateSigStatus(&#39;hipaa&#39;)">
+          <label for="attest_hipaa">I have read the HIPAA Privacy Notice and acknowledge receipt of a copy.</label>
+        </div>
+      </div>
+      <h3 style="margin-top:22px;">Optional Authorization · Medication History Access</h3>
+      <div class="info-banner"><strong>This is a separate, optional authorization.</strong> Declining will not affect your care or billing.</div>
+      <p>I authorize Suncoast Physical Medicine, LLC (d/b/a PainMed) to download and access the prior <strong>thirteen (13) months</strong> of my medication history through my insurance company and authorized medication history databases for the purpose of reviewing medications relevant to my care.</p>
+      <div class="yn-pair">
+        <div class="yn-option" id="medhx-yes" onclick="setMedHx(&#39;yes&#39;)">
+          <div class="yn-dot"></div>
+          <div><div class="yn-label">YES · I authorize access</div><div class="yn-sublabel">to my 13-month medication history</div></div>
+        </div>
+        <div class="yn-option no" id="medhx-no" onclick="setMedHx(&#39;no&#39;)">
+          <div class="yn-dot"></div>
+          <div><div class="yn-label">NO · I do not authorize</div><div class="yn-sublabel">access to my medication history</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3 · TOA -->
+<section class="step" data-step="3">
+  <div id="pt-bar-3"><div class="pt-bar"><div class="pt-bar-item"><div class="pt-bar-lbl">Patient</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">DOB</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Date of Loss</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Office</div><div class="pt-bar-val">· (none selected)</div></div></div></div>
+  <div class="doc-card">
+    <div class="doc-hdr">
+      <div class="doc-tag">Document 2 of 7</div>
+      <div class="doc-eyebrow">Terms of Acceptance</div>
+      <h1>Terms of Acceptance &amp; Consent for Care</h1>
+      <div class="doc-sub">Scope of care, examination, imaging, risks, and consent to treatment.</div>
+      <div class="doc-ver">Version v_04.13.26</div>
+    </div>
+    <div class="doc-body">
+      <h3>Scope of Care</h3>
+      <p>PainMed provides evaluation and treatment of neuromusculoskeletal conditions through chiropractic care, physical medicine, active and passive rehabilitation, and massage therapy. If during your evaluation we identify a condition outside our scope of practice, we may recommend referral to an appropriate provider.</p>
+      <h3>Examination, Diagnostic Imaging, and Reassessment</h3>
+      <p>Your care may include physical examination, orthopedic and neurological testing, range-of-motion assessment, and diagnostic imaging when clinically indicated. Reassessment and repeat imaging may be recommended based on clinical judgment.</p>
+      <h3>Risks of Care</h3>
+      <p><strong>Chiropractic / manual care:</strong> temporary soreness, stiffness, bruising, muscle strain, soft-tissue injury, aggravation of existing condition; rarely · disc injury, fracture, nerve irritation, or stroke from cervical manipulation (vertebrobasilar injury). <strong>Rehab &amp; modalities:</strong> soreness, temporary symptom increase, skin irritation, rare allergic reactions. No guarantees have been made regarding outcomes. <strong>X-ray:</strong> exposure to ionizing radiation. <em>If pregnant or possibly pregnant, inform clinical staff before any imaging.</em></p>
+      <h3>Diagnostic Imaging Ownership</h3>
+      <p>X-ray and other diagnostic images are the property of PainMed and are part of your medical record. Copies may be requested per Florida law and HIPAA (cost-based fee may apply).</p>
+      <h3>Video Surveillance Notice</h3>
+      <p>Non-disrobing areas are under video surveillance for safety. <strong>No surveillance in exam rooms, treatment bays where patients disrobe, or restrooms.</strong></p>
+      <h3>Consent to Evaluation and Treatment</h3>
+      <p>I have read and understand the Terms of Acceptance above. I voluntarily consent to evaluation and treatment, may ask questions at any time, may refuse or discontinue treatment, and understand no outcome is guaranteed.</p>
+      <div class="sig-block">
+        <div class="sig-block-title">Patient Consent · Terms of Acceptance</div>
+        <div class="sig-pair">
+          <div>
+            <div class="sig-canvas-wrap" style="height:60px;"><canvas class="sig-canvas" id="sig_toa_sig" height="60" data-signed="0" width="436"></canvas><div class="sig-canvas-ph" id="sig_toa_sig_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_toa_sig&#39;)">Clear</button></div>
+            <div class="sig-line-lbl">Signature</div>
+          </div>
+          <div><input class="sig-input sig-input-print pt-name-pop" placeholder="Printed name"><div class="sig-line-lbl">Printed Name</div></div>
+          <div><input class="sig-input sig-input-print pt-today-pop" placeholder="MM-DD-YYYY"><div class="sig-line-lbl">Date</div></div>
+        </div>
+        <div class="sig-attest">
+          <input type="checkbox" id="attest_toa" onchange="updateSigStatus(&#39;toa&#39;)">
+          <label for="attest_toa">I have read and understand the Terms of Acceptance and consent to evaluation and treatment.</label>
+        </div>
+        <div class="fg g2" style="margin-top:12px;">
+          <div class="f"><label>Staff Witness (optional)</label><input class="fi sw-pop" id="toa_witness" placeholder="Staff name"></div>
+          <div></div>
+        </div>
+        <div class="guardian-block">
+          <div class="guardian-toggle" onclick="toggleGuardian(&#39;toa&#39;)" id="gt-toa">Add Minor / Guardian Signature</div>
+          <div class="guardian-body" id="gb-toa">
+            <div class="fg g2">
+              <div class="f"><label>Guardian Full Name</label><input class="fi" id="toa_guard_name" placeholder="Guardian printed name"></div>
+              <div class="f"><label>Minor's Full Name</label><input class="fi" id="toa_minor_name" placeholder="Minor printed name"></div>
+            </div>
+            <div class="fg g2" style="margin-top:10px;">
+              <div class="f"><label>Minor's Date of Birth</label><input class="fi" id="toa_minor_dob" placeholder="MM-DD-YYYY" oninput="fmtDate(this)" maxlength="10"></div>
+              <div class="f"><label>Guardian Phone</label><input class="fi" id="toa_guard_phone" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this)" maxlength="14"></div>
+            </div>
+            <div class="f" style="margin-top:10px;"><label>Relationship to Minor</label>
+              <div class="radio-row" id="toa-rel-row">
+                <div class="radio-chip" onclick="pickRelation(&#39;toa&#39;,this,&#39;Parent&#39;)">Parent</div>
+                <div class="radio-chip" onclick="pickRelation(&#39;toa&#39;,this,&#39;Legal Guardian&#39;)">Legal Guardian</div>
+                <div class="radio-chip" onclick="pickRelation(&#39;toa&#39;,this,&#39;Court-Appointed Guardian&#39;)">Court-Appointed Guardian</div>
+                <div class="radio-chip" onclick="pickRelation(&#39;toa&#39;,this,&#39;Other&#39;)">Other</div>
+              </div>
+              <input type="hidden" id="toa_rel">
+            </div>
+            <div class="sig-pair" style="margin-top:14px;">
+              <div>
+                <div class="sig-canvas-wrap" style="height:50px;"><canvas class="sig-canvas" id="sig_toa_guard" height="50" data-signed="0"></canvas><div class="sig-canvas-ph" id="sig_toa_guard_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_toa_guard&#39;)">Clear</button></div>
+                <div class="sig-line-lbl">Guardian Signature</div>
+              </div>
+              <div><input class="sig-input sig-input-print" id="toa_guard_date" placeholder="MM-DD-YYYY" oninput="fmtDate(this)" maxlength="10"><div class="sig-line-lbl">Date</div></div>
+              <div><input class="sig-input sig-input-print sw-pop" id="toa_guard_witness" placeholder="Staff witness (optional)"><div class="sig-line-lbl">Witness</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4 · IOT -->
+<section class="step" data-step="4">
+  <div id="pt-bar-4"><div class="pt-bar"><div class="pt-bar-item"><div class="pt-bar-lbl">Patient</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">DOB</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Date of Loss</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Office</div><div class="pt-bar-val">· (none selected)</div></div></div></div>
+  <div class="doc-card">
+    <div class="doc-hdr">
+      <div class="doc-tag">Document 3 of 7</div>
+      <div class="doc-eyebrow">Florida Office of Insurance Regulation</div>
+      <h1>Standard Disclosure &amp; Acknowledgement Form</h1>
+      <div class="doc-sub">Personal Injury Protection · Initial Treatment or Service Provided · Form OIR-BJ-1571</div>
+      <div class="doc-ver">State-mandated form · content cannot be modified</div>
+    </div>
+    <div class="doc-body">
+      <div class="info-banner"><strong>Note:</strong> This is a state-mandated form required by Florida Statutes · 627.736(5)(e). The content below is standardized and cannot be altered.</div>
+      <h3>Insured Person's Affirmation</h3>
+      <p>The undersigned insured person (or guardian of such person) affirms:</p>
+      <ol>
+        <li>The services or treatment set forth below were actually rendered.</li>
+        <li>I have the right and the duty to confirm that the services have already been provided.</li>
+        <li>I was not solicited by any person to seek any services from the medical provider.</li>
+        <li>The medical provider has explained the services to me for which payment is being claimed.</li>
+        <li>If I notify the insurer in writing of a billing error, I may be entitled to a portion of any reduction in the amounts paid by my motor vehicle insurer (at least 20%, up to $500).</li>
+      </ol>
+      <h3>Services Rendered</h3>
+      <p style="padding:10px 14px;background:var(--lgreen);border-radius:8px;border:1px solid var(--mgreen);font-weight:600;color:var(--dgreen);">examination and treatment</p>
+      <div class="alert"><strong>Fraud Warning:</strong> Any person who knowingly and with intent to injure, defraud, or deceive any insurer files a statement of claim or an application containing any false, incomplete, or misleading information is guilty of a felony of the third degree per Section 817.234(1)(b), Florida Statutes.</div>
+      <p style="font-size:12px;color:var(--gray);"><strong>Note:</strong> The original of this form must be furnished to the insurer pursuant to Section 627.736(4)(b), Florida Statutes and may not be electronically furnished.</p>
+      <p style="font-size:11px;color:var(--gray);margin-top:4px;">OIR-BJ-1571 · Pub. 1/2004</p>
+      <div class="sig-block">
+        <div class="sig-block-title">Insured Person (Patient) / Guardian Signature</div>
+        <div class="sig-pair">
+          <div>
+            <div class="sig-canvas-wrap" style="height:60px;"><canvas class="sig-canvas" id="sig_iot_sig" height="60" data-signed="0" width="436"></canvas><div class="sig-canvas-ph" id="sig_iot_sig_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_iot_sig&#39;)">Clear</button></div>
+            <div class="sig-line-lbl">Signature</div>
+          </div>
+          <div><input class="sig-input sig-input-print pt-name-pop" placeholder="Printed name"><div class="sig-line-lbl">Name (PRINT or TYPE)</div></div>
+          <div><input class="sig-input sig-input-print pt-today-pop" placeholder="MM-DD-YYYY"><div class="sig-line-lbl">Date</div></div>
+        </div>
+        <div class="sig-attest">
+          <input type="checkbox" id="attest_iot" onchange="updateSigStatus(&#39;iot&#39;)">
+          <label for="attest_iot">I affirm the statements above and acknowledge the fraud warning.</label>
+        </div>
+      </div>
+      <div class="sig-block" style="background:#f4f6f9;border-color:var(--border);margin-top:10px;">
+        <div class="sig-block-title" style="color:var(--gray);">Licensed Medical Professional (Completed by Office)</div>
+        <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">The undersigned licensed medical professional affirms: (A) no solicitation occurred; (B) treatment was explained for informed consent; (C) the bill is properly completed; (D) procedure coding complies with Florida Statutes.</p>
+        <div class="sig-pair">
+          <div><div class="sig-line"></div><div class="sig-line-lbl">Provider Signature</div></div>
+          <div><div class="sig-line"></div><div class="sig-line-lbl">Provider Name (Print)</div></div>
+          <div><div class="sig-line"></div><div class="sig-line-lbl">Date</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 5 · AOB -->
+<section class="step" data-step="5">
+  <div id="pt-bar-5"><div class="pt-bar"><div class="pt-bar-item"><div class="pt-bar-lbl">Patient</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">DOB</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Date of Loss</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Office</div><div class="pt-bar-val">· (none selected)</div></div></div></div>
+  <div class="doc-card">
+    <div class="doc-hdr">
+      <div class="doc-tag">Document 4 of 7</div>
+      <div class="doc-eyebrow">Assignment of PIP Benefits</div>
+      <h1>Assignment of Benefits · PIP</h1>
+      <div class="doc-sub">Assignment of Personal Injury Protection insurance benefits pursuant to Florida Statutes · 627.736.</div>
+      <div class="doc-ver">Version v_04.13.26</div>
+    </div>
+    <div class="doc-body">
+      <div class="fg g3" style="margin-bottom:14px;">
+        <div class="f"><label>Patient Name</label><div class="fi locked pt-name-mirror">·</div></div>
+        <div class="f"><label>Date of Loss</label><div class="fi locked pt-dol-mirror">·</div></div>
+        <div class="f"><label>Claim / Policy #</label><div class="fi locked ins-claim-mirror">·</div></div>
+      </div>
+      <div class="fg g2" style="margin-bottom:14px;">
+        <div class="f"><label>PIP Carrier</label><div class="fi locked ins-carrier-mirror">·</div></div>
+        <div class="f"><label>Attorney / Firm</label><div class="fi locked atty-combo-mirror">·</div></div>
+      </div>
+      <h3>Assignment of PIP Benefits</h3>
+      <p>I, <span class="pt-chip pt-name-mirror">·</span> ("Patient"), hereby <strong>irrevocably</strong> assign to <strong>Suncoast Physical Medicine, LLC D/B/A PainMed</strong> ("Assignee") all rights and benefits under my Personal Injury Protection (PIP) insurance coverage arising from the motor vehicle accident on the Date of Loss above, to the extent of charges for services rendered. This assignment is made pursuant to · 627.736, Florida Statutes, and shall remain irrevocable until all outstanding charges are fully resolved.</p>
+      <h3>Direction to Pay &amp; Authorization to Release Information</h3>
+      <p>I direct my PIP carrier and, where applicable, my attorney to pay sums due directly to the Assignee, and to withhold from any settlement an amount sufficient to satisfy any outstanding balance. I further authorize the Assignee to release medical records and billing information to my PIP carrier and my attorney solely as necessary to facilitate payment.</p>
+      <h3>Patient Acknowledgement</h3>
+      <ol>
+        <li>I have read and understand this Assignment of Benefits.</li>
+        <li>I am the named insured or an authorized representative under the applicable PIP policy.</li>
+        <li>This assignment does not relieve me of personal financial responsibility for charges not covered by my PIP insurer.</li>
+        <li>I was not solicited by any person to seek services from this provider.</li>
+        <li>I will notify the Assignee promptly of any changes to my insurance coverage, contact information, or legal representation.</li>
+      </ol>
+      <div class="alert"><strong>Any person who knowingly and with intent to injure, defraud, or deceive any insurer files a statement of claim or application containing false, incomplete, or misleading information is guilty of a felony of the third degree pursuant to · 817.234(1)(b), Florida Statutes.</strong></div>
+      <div class="sig-block">
+        <div class="sig-block-title">Patient / Guardian Signature · AOB</div>
+        <div class="sig-pair">
+          <div>
+            <div class="sig-canvas-wrap" style="height:60px;"><canvas class="sig-canvas" id="sig_aob_sig" height="60" data-signed="0" width="436"></canvas><div class="sig-canvas-ph" id="sig_aob_sig_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_aob_sig&#39;)">Clear</button></div>
+            <div class="sig-line-lbl">Signature</div>
+          </div>
+          <div><input class="sig-input sig-input-print pt-name-pop" placeholder="Printed name"><div class="sig-line-lbl">Printed Name</div></div>
+          <div><input class="sig-input sig-input-print pt-today-pop" placeholder="MM-DD-YYYY"><div class="sig-line-lbl">Date</div></div>
+        </div>
+        <div class="sig-attest">
+          <input type="checkbox" id="attest_aob" onchange="updateSigStatus(&#39;aob&#39;)">
+          <label for="attest_aob">I have read and understand this Assignment of Benefits and acknowledge the fraud warning.</label>
+        </div>
+        <div class="f" style="margin-top:12px;"><label>Relationship (if Guardian)</label><input class="fi" id="aob_rel" placeholder="e.g., Parent, Legal Guardian · leave blank if patient is signing"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 6 · RR1 -->
+<section class="step active" data-step="6">
+  <div id="pt-bar-6"><div class="pt-bar"><div class="pt-bar-item"><div class="pt-bar-lbl">Patient</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">DOB</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Date of Loss</div><div class="pt-bar-val">·</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Office</div><div class="pt-bar-val">· (none selected)</div></div></div></div>
+  <div class="doc-card">
+    <div class="doc-hdr">
+      <div class="doc-tag">Document 5 of 7</div>
+      <div class="doc-eyebrow">Records Release · Incoming</div>
+      <h1>Authorization to Release Records TO PainMed</h1>
+      <div class="doc-sub">Authorizing third-party providers to release your records to us for continuity of care.</div>
+      <div class="doc-ver">Version v_04.13.26 · HIPAA-Compliant</div>
+    </div>
+    <div class="doc-body">
+      <div class="info-banner">This authorization allows other healthcare providers (hospitals, prior clinics, imaging centers) to release your existing records to the PainMed office selected on the cover sheet.</div>
+      <div class="fg g3" style="margin-bottom:14px;">
+        <div class="f"><label>Patient Name</label><div class="fi locked pt-name-mirror">·</div></div>
+        <div class="f"><label>Date of Birth</label><div class="fi locked pt-dob-mirror">·</div></div>
+        <div class="f"><label>Date of Loss</label><div class="fi locked pt-dol-mirror">·</div></div>
+      </div>
+      <h3>Release Records To (Receiving Office)</h3>
+      <div class="fg" style="padding:14px 16px;background:var(--lgreen);border:1.5px solid var(--mgreen);border-radius:10px;" id="rr1-receiving">
+        <div style="font-weight:700;color:var(--dgreen);font-size:14px;" class="office-name-mirror">· (select on Cover Sheet)</div>
+        <div style="font-size:12.5px;color:#3a4a3e;margin-top:4px;" class="office-addr-mirror"></div>
+      </div>
+      <h3>Records to be Released By</h3>
+      <div class="fg g2">
+        <div class="f s2"><label>Provider / Hospital / Facility Name</label><input class="fi" id="rr1_from_name" placeholder="Releasing provider name"></div>
+        <div class="f"><label>Phone</label><input class="fi" id="rr1_from_phone" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this)" maxlength="14"></div>
+        <div class="f"><label>Fax</label><input class="fi" id="rr1_from_fax" placeholder="(XXX) XXX-XXXX" oninput="fmtPhone(this)" maxlength="14"></div>
+      </div>
+      <div class="f" style="margin-top:12px;"><label>Address</label><input class="fi" id="rr1_from_addr" placeholder="Street, City, State, Zip"></div>
+      <h3>Records Requested</h3>
+      <p>I hereby authorize and request the release of the <strong>complete medical history, records, reports, imaging, and treatment notes</strong> in your possession concerning my illness and/or treatment during the period below:</p>
+      <div class="fg g2" style="margin-top:10px;">
+        <div class="f"><label>From</label><input class="fi" id="rr1_period_from" placeholder="MM-DD-YYYY" oninput="fmtDate(this)" maxlength="10"></div>
+        <div class="f"><label>To</label><input class="fi" id="rr1_period_to" placeholder="MM/DD/YYYY or &#39;Present&#39;"></div>
+      </div>
+      <p style="margin-top:14px;">I understand I may revoke this authorization at any time in writing. A photocopy or fax of this authorization shall be considered as valid as the original.</p>
+      <div class="sig-block">
+        <div class="sig-block-title">Patient Authorization · Records Release (Incoming)</div>
+        <div class="sig-pair">
+          <div>
+            <div class="sig-canvas-wrap" style="height:60px;"><canvas class="sig-canvas" id="sig_rr1_sig" height="60" data-signed="0" width="436"></canvas><div class="sig-canvas-ph" id="sig_rr1_sig_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_rr1_sig&#39;)">Clear</button></div>
+            <div class="sig-line-lbl">Patient Signature</div>
+          </div>
+          <div><input class="sig-input sig-input-print pt-name-pop" placeholder="Printed name"><div class="sig-line-lbl">Printed Name</div></div>
+          <div><input class="sig-input sig-input-print pt-today-pop" placeholder="MM-DD-YYYY"><div class="sig-line-lbl">Date</div></div>
+        </div>
+        <div class="sig-attest">
+          <input type="checkbox" id="attest_rr1" onchange="updateSigStatus(&#39;rr1&#39;)">
+          <label for="attest_rr1">I authorize the release of the records described above.</label>
+        </div>
+        <div class="fg g2" style="margin-top:12px;">
+          <div class="f"><label>Witness (optional)</label><input class="fi sw-pop" id="rr1_witness" placeholder="Witness name"></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 7 · RR2 -->
+<section class="step" data-step="7">
+  <div id="pt-bar-7"></div>
+  <div class="doc-card">
+    <div class="doc-hdr">
+      <div class="doc-tag">Document 6 of 7</div>
+      <div class="doc-eyebrow">Records Release · Outgoing</div>
+      <h1>Authorization to Release Records TO Attorney</h1>
+      <div class="doc-sub">Granting your attorney permission to request your records from PainMed.</div>
+      <div class="doc-ver">Version v_04.13.26 · HIPAA-Compliant</div>
+    </div>
+    <div class="doc-body">
+      <div id="rr2-noatty-warn" class="danger-banner" style="display: block;"><strong>No attorney on file at signing.</strong> Your signature will be captured and this release will be activated once attorney information is provided.</div>
+      <div id="rr2-hasatty-info" class="info-banner" style="display:none;">This authorization allows the attorney named below to request your records directly from PainMed.</div>
+      <div class="fg g3" style="margin-bottom:14px;">
+        <div class="f"><label>Patient Name</label><div class="fi locked pt-name-mirror">·</div></div>
+        <div class="f"><label>Date of Birth</label><div class="fi locked pt-dob-mirror">·</div></div>
+        <div class="f"><label>Date of Loss</label><div class="fi locked pt-dol-mirror">·</div></div>
+      </div>
+      <h3>Records Released By</h3>
+      <div class="fg" style="padding:14px 16px;background:var(--lgreen);border:1.5px solid var(--mgreen);border-radius:10px;">
+        <div style="font-weight:700;color:var(--dgreen);font-size:14px;" class="office-name-mirror">· (select on Cover Sheet)</div>
+        <div style="font-size:12.5px;color:#3a4a3e;margin-top:4px;" class="office-addr-mirror"></div>
+      </div>
+      <h3>Records Released To (Attorney of Record)</h3>
+      <div class="fg g2">
+        <div class="f"><label>Firm Name</label><div class="fi locked atty-firm-mirror">·</div></div>
+        <div class="f"><label>Attorney Name</label><div class="fi locked atty-name-mirror">·</div></div>
+      </div>
+      <div class="fg g3" style="margin-top:10px;">
+        <div class="f"><label>Phone</label><div class="fi locked atty-phone-mirror">·</div></div>
+        <div class="f"><label>Fax</label><div class="fi locked atty-fax-mirror">·</div></div>
+        <div class="f"><label>Email</label><div class="fi locked atty-email-mirror">·</div></div>
+      </div>
+      <div class="f" style="margin-top:10px;"><label>Firm Address</label><div class="fi locked atty-addr-mirror">·</div></div>
+      <h3>Scope of Release</h3>
+      <p>I hereby authorize Suncoast Physical Medicine, LLC (d/b/a PainMed) to release the <strong>complete medical history, records, reports, imaging, billing records, and treatment notes</strong> related to my care to the attorney named above for purposes of representation in the matter arising from the Date of Loss listed above.</p>
+      <p style="margin-top:12px;">I understand I may revoke this authorization at any time in writing. A photocopy or fax of this authorization shall be considered as valid as the original.</p>
+      <div class="sig-block">
+        <div class="sig-block-title">Patient Authorization · Records Release (Outgoing)</div>
+        <div class="sig-pair">
+          <div>
+            <div class="sig-canvas-wrap" style="height:60px;"><canvas class="sig-canvas" id="sig_rr2_sig" height="60" data-signed="0"></canvas><div class="sig-canvas-ph" id="sig_rr2_sig_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_rr2_sig&#39;)">Clear</button></div>
+            <div class="sig-line-lbl">Patient Signature</div>
+          </div>
+          <div><input class="sig-input sig-input-print pt-name-pop" placeholder="Printed name"><div class="sig-line-lbl">Printed Name</div></div>
+          <div><input class="sig-input sig-input-print pt-today-pop" placeholder="MM-DD-YYYY"><div class="sig-line-lbl">Date</div></div>
+        </div>
+        <div class="sig-attest">
+          <input type="checkbox" id="attest_rr2" onchange="updateSigStatus(&#39;rr2&#39;)">
+          <label for="attest_rr2">I authorize the release of my records to the attorney named above.</label>
+        </div>
+        <div class="fg g2" style="margin-top:12px;">
+          <div class="f"><label>Witness (optional)</label><input class="fi sw-pop" id="rr2_witness" placeholder="Witness name"></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 8 · FINANCIAL RESPONSIBILITY -->
+<section class="step" data-step="8">
+  <div id="pt-bar-8"></div>
+  <div class="doc-card">
+    <div class="doc-hdr">
+      <div class="doc-tag">Document 7 of 7</div>
+      <div class="doc-eyebrow">Financial Agreement</div>
+      <h1>Financial Responsibility Consent &amp; Authorization</h1>
+      <div class="doc-sub">Acknowledgment of financial responsibility for charges not covered by insurance.</div>
+      <div class="doc-ver">Version v_04.13.26</div>
+    </div>
+    <div class="doc-body">
+      <p>I, the undersigned patient/parent/guardian ("<strong>Responsible Party</strong>"), understand it is my responsibility to provide Suncoast Physical Medicine, LLC (d/b/a <strong>PainMed</strong>) with all necessary information so that PainMed may submit charges for my care through insurance that may help satisfy my charges. I understand that I will be responsible for any charges not covered by personal injury protection or medical payments coverage insurance benefits, including co-payments and any applicable deductibles.</p>
+      <p>As the Responsible Party, I will receive copies of billing and medical records upon request or as periodically submitted by PainMed.</p>
+      <div class="sig-block">
+        <div class="sig-block-title">Patient / Responsible Party Signature</div>
+        <div class="sig-pair">
+          <div>
+            <div class="sig-canvas-wrap" style="height:60px;"><canvas class="sig-canvas" id="sig_fr_sig" height="60" data-signed="0"></canvas><div class="sig-canvas-ph" id="sig_fr_sig_ph">Sign here</div><button class="sig-canvas-clear" onclick="clearSigPad(&#39;sig_fr_sig&#39;)">Clear</button></div>
+            <div class="sig-line-lbl">Patient / Responsible Party Signature</div>
+          </div>
+          <div><input class="sig-input sig-input-print pt-name-pop" placeholder="Printed name"><div class="sig-line-lbl">Print Patient Name</div></div>
+          <div><input class="sig-input sig-input-print pt-today-pop" placeholder="MM-DD-YYYY"><div class="sig-line-lbl">Date</div></div>
+        </div>
+        <div class="sig-attest">
+          <input type="checkbox" id="attest_fr" onchange="updateSigStatus(&#39;fr&#39;)">
+          <label for="attest_fr">I have read and understand this Financial Responsibility Consent &amp; Authorization and agree to its terms.</label>
+        </div>
+        <div class="guardian-block">
+          <div class="guardian-toggle" onclick="toggleGuardian(&#39;fr&#39;)" id="gt-fr">If Patient is Not the Responsible Party</div>
+          <div class="guardian-body" id="gb-fr">
+            <div class="fg g2">
+              <div class="f"><label>Print Responsible Party's Name</label><input class="fi" id="fr_rp_name" placeholder="Responsible Party full name"></div>
+              <div class="f"><label>Relationship to Patient</label><input class="fi" id="fr_rp_rel" placeholder="e.g., Parent, Spouse, Legal Guardian"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fg g2" style="margin-top:12px;">
+          <div class="f"><label>Staff Witness (optional)</label><input class="fi sw-pop" id="fr_witness" placeholder="Staff name"></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 9 · REVIEW & SUBMIT -->
+<section class="step" data-step="9">
+  <div class="card">
+    <div class="card-hdr">
+      <h2>Review &amp; Submit</h2>
+      <p>Confirm all documents are signed before submitting the packet to staff.</p>
+    </div>
+    <div class="card-body">
+      <div id="review-patient-summary" style="padding:14px 18px;background:var(--lgreen);border:1.5px solid var(--mgreen);border-radius:10px;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--dgreen);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Packet Summary</div>
+        <div class="fg g3">
+          <div><div class="pt-bar-lbl">Patient</div><div class="pt-bar-val pt-name-mirror">·</div></div>
+          <div><div class="pt-bar-lbl">Date of Birth</div><div class="pt-bar-val pt-dob-mirror">·</div></div>
+          <div><div class="pt-bar-lbl">Date of Loss</div><div class="pt-bar-val pt-dol-mirror">·</div></div>
+          <div><div class="pt-bar-lbl">Office</div><div class="pt-bar-val office-name-mirror">· (select on Cover Sheet)</div></div>
+          <div><div class="pt-bar-lbl">Provider</div><div class="pt-bar-val provider-name-mirror">· (none selected)</div></div>
+          <div><div class="pt-bar-lbl">Attorney</div><div class="pt-bar-val atty-combo-mirror">·</div></div>
+          <div class="s3"><div class="pt-bar-lbl">PIP Carrier / Claim</div><div class="pt-bar-val ins-combo-mirror">·</div></div>
+        </div>
+      </div>
+      <div class="sec-lbl">Document Signature Status</div>
+      <div id="review-doc-list"></div>
+      <div style="margin-top:18px;padding:14px 16px;background:#fffbe6;border:1.5px solid #d4a017;border-radius:10px;font-size:12.5px;line-height:1.55;color:#6b4d00;">
+        <strong>Staff workflow:</strong> Generate the <strong>Print (B&amp;W)</strong> version for the patient chart, and the <strong>Color</strong> version for the digital file / attorney delivery.
+      </div>
+      <div style="margin-top:18px;">
+        <button class="btn btn-next" id="submit-btn" onclick="submitPacket()" style="width:100%;padding:16px 20px;font-size:16px;letter-spacing:0.3px;margin-bottom:8px;">
+          &#10003; &nbsp;Submit Signature Packet
+        </button>
+        <div id="submit-status" style="font-size:13px;font-weight:600;min-height:20px;text-align:center;margin-bottom:12px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <button class="btn btn-back btn-pdf-download" onclick="exportPacketPdf(&#39;mono&#39;)" style="padding:12px 16px;font-size:13px;background:#1a2535;color:#fff;border:none;">
+            &#128438; Print Version (B&amp;W)
+          </button>
+          <button class="btn btn-pdf btn-pdf-download" onclick="exportPacketPdf(&#39;color&#39;)" style="padding:12px 16px;font-size:13px;">
+            &#128196; Color Version (for File)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NAV BAR -->
+<div class="navbar">
+  <div class="navbar-inner">
+    <div class="navbar-status" id="nav-status">Step 6 of 9 · Records Release · Incoming</div>
+    <div class="navbar-btns">
+      <button class="btn btn-back" id="btn-back" onclick="goBack()" style="">&#8592; Back</button>
+      <button class="btn btn-next" id="btn-next" onclick="goNext()">Next &#8594;</button>
+    </div>
+  </div>
+</div>
+<script>
+const STEPS=[{n:1,name:"Cover Sheet"},{n:2,name:"HIPAA Privacy Notice"},{n:3,name:"Terms of Acceptance"},{n:4,name:"PIP Disclosure (IOT)"},{n:5,name:"Assignment of Benefits"},{n:6,name:"Records Release · Incoming"},{n:7,name:"Records Release · Attorney"},{n:8,name:"Financial Responsibility"},{n:9,name:"Review & Submit"}];
+const DOCS=[{key:"hipaa",label:"HIPAA Privacy Notice",step:2},{key:"toa",label:"Terms of Acceptance",step:3},{key:"iot",label:"PIP Disclosure (OIR-BJ-1571)",step:4},{key:"aob",label:"Assignment of Benefits",step:5},{key:"rr1",label:"Records Release · Incoming",step:6},{key:"rr2",label:"Records Release · Attorney",step:7},{key:"fr",label:"Financial Responsibility",step:8}];
+const OFFICES={tampa:{name:"PainMed — Tampa (138th Ave)",addr:"3010 E. 138th Ave, Ste 300, Tampa, FL 33613 · Ph: 813-668-0000 · Fax: 813-668-2978"}};
+const PROVIDERS={eldeeb:{name:"Mohammad Eldeeb, M.D.",sig:"https://raw.githubusercontent.com/DrBerns/PainMed/main/Eldeeb_Signature-removebg-preview.png",descenderPt:40}};
+let currentStep=1,selectedOffice=null,selectedProvider=null,noAtty=false,noIns=false;
+let sigStatus={hipaa:false,toa:false,iot:false,aob:false,rr1:false,rr2:false,fr:false};
+
+function renderDots(){
+  var el=document.getElementById('prog-dots');
+  el.innerHTML=STEPS.map(function(s,i){
+    var cls=(i+1)<currentStep?'dot done':(i+1)===currentStep?'dot active':'dot';
+    return '<div class="'+cls+'"></div>';
+  }).join('');
+}
+
+function _showStepCore(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+  var target=document.querySelector('[data-step="'+n+'"]');
+  if(target) target.classList.add('active');
+  currentStep=n;
+  document.getElementById('hdr-step-num').textContent='Step '+n+' of '+STEPS.length;
+  document.getElementById('hdr-step-name').textContent=STEPS[n-1].name;
+  document.getElementById('nav-status').textContent='Step '+n+' of '+STEPS.length+' \u00b7 '+STEPS[n-1].name;
+  document.getElementById('btn-back').style.display=n>1?'':'none';
+  document.getElementById('btn-next').textContent=n===STEPS.length?'Finish \u2713':'Next \u2192';
+  renderDots(); renderPatientBar(n);
+  if(n===9) renderReview();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showStep(n){
+  _showStepCore(n);
+  var target=document.querySelector('[data-step="'+n+'"]');
+  if(target){
+    target.querySelectorAll('.sig-canvas').forEach(function(c){
+      var w=c.parentElement.offsetWidth;
+      if(w>0&&c.width!==w){c.width=w;var ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#1a2535';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';}
+    });
+  }
+}
+
+function goNext(){if(currentStep<STEPS.length) showStep(currentStep+1);}
+
+function goBack(){if(currentStep>1) showStep(currentStep-1);}
+
+function renderPatientBar(n){
+  if(n<2||n>8) return;
+  var host=document.getElementById('pt-bar-'+n);
+  if(!host) return;
+  var name=v('pt_name')||'\u2014',dob=v('pt_dob')||'\u2014',dol=v('pt_dol')||'\u2014';
+  var office=selectedOffice?OFFICES[selectedOffice].name:'\u2014 (none selected)';
+  host.innerHTML='<div class="pt-bar"><div class="pt-bar-item"><div class="pt-bar-lbl">Patient</div><div class="pt-bar-val">'+esc(name)+'</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">DOB</div><div class="pt-bar-val">'+esc(dob)+'</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Date of Loss</div><div class="pt-bar-val">'+esc(dol)+'</div></div><div class="pt-bar-item"><div class="pt-bar-lbl">Office</div><div class="pt-bar-val">'+esc(office)+'</div></div></div>';
+}
+
+function fmtPhone(el){
+  var x=el.value.replace(/\D/g,'').slice(0,10);
+  if(x.length>6) el.value='('+x.slice(0,3)+') '+x.slice(3,6)+'-'+x.slice(6);
+  else if(x.length>3) el.value='('+x.slice(0,3)+') '+x.slice(3);
+  else if(x.length>0) el.value='('+x;
+  else el.value='';
+}
+
+function fmtDate(el){
+  var x=el.value.replace(/\D/g,'').slice(0,8);
+  if(x.length>4) el.value=x.slice(0,2)+'-'+x.slice(2,4)+'-'+x.slice(4);
+  else if(x.length>2) el.value=x.slice(0,2)+'-'+x.slice(2);
+  else el.value=x;
+}
+
+function v(id){var e=document.getElementById(id);return e?e.value.trim():'';}
+
+function esc(s){return (s||'').replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
+
+function setMirrors(cls,val){document.querySelectorAll('.'+cls).forEach(function(el){if(el.tagName==='INPUT')el.value=val;else el.textContent=val;});}
+
+function syncAll(){
+  var name=v('pt_name'),dob=v('pt_dob'),dol=v('pt_dol'),today=v('pt_today');
+  setMirrors('pt-name-mirror',name||'\u2014');setMirrors('pt-dob-mirror',dob||'\u2014');setMirrors('pt-dol-mirror',dol||'\u2014');
+  document.querySelectorAll('.pt-name-pop').forEach(function(el){if(!el.dataset.userEdited)el.value=name;});
+  document.querySelectorAll('.pt-today-pop').forEach(function(el){if(!el.dataset.userEdited)el.value=today;});
+  var af=v('atty_firm'),an=v('atty_name'),ap=v('atty_phone'),ax=v('atty_fax'),ae=v('atty_email'),aa=v('atty_addr');
+  setMirrors('atty-firm-mirror',noAtty?'No attorney at this time':(af||'\u2014'));
+  setMirrors('atty-name-mirror',noAtty?'\u2014':(an||'\u2014'));
+  setMirrors('atty-phone-mirror',noAtty?'\u2014':(ap||'\u2014'));
+  setMirrors('atty-fax-mirror',noAtty?'\u2014':(ax||'\u2014'));
+  setMirrors('atty-email-mirror',noAtty?'\u2014':(ae||'\u2014'));
+  setMirrors('atty-addr-mirror',noAtty?'\u2014':(aa||'\u2014'));
+  var attyCombo=noAtty?'No attorney on file':((af||an)?[af,an].filter(Boolean).join(' \u2014 '):'\u2014');
+  setMirrors('atty-combo-mirror',attyCombo);
+  var ic=v('ins_carrier'),icl=v('ins_claim');
+  setMirrors('ins-carrier-mirror',noIns?'No insurance at this time':(ic||'\u2014'));
+  setMirrors('ins-claim-mirror',noIns?'\u2014':(icl||'\u2014'));
+  var insCombo=noIns?'No insurance on file':((ic||icl)?[ic,icl].filter(Boolean).join(' \u2014 Claim #: '):'\u2014');
+  setMirrors('ins-combo-mirror',insCombo);
+  var warn=document.getElementById('rr2-noatty-warn'),info=document.getElementById('rr2-hasatty-info');
+  if(noAtty||(!af&&!an)){if(warn)warn.style.display='block';if(info)info.style.display='none';}
+  else{if(warn)warn.style.display='none';if(info)info.style.display='block';}
+  var off=selectedOffice?OFFICES[selectedOffice]:null;
+  setMirrors('office-name-mirror',off?off.name:'\u2014 (select on Cover Sheet)');
+  setMirrors('office-addr-mirror',off?off.addr:'');
+  var prov=selectedProvider?PROVIDERS[selectedProvider]:null;
+  setMirrors('provider-name-mirror',prov?prov.name:'\u2014 (none selected)');
+  var sw=v('staff_witness');
+  document.querySelectorAll('.sw-pop').forEach(function(el){if(!el.dataset.userEdited)el.value=sw;});
+}
+
+function selectOffice(key){selectedOffice=key;document.getElementById('oc-tampa').classList.toggle('selected',key==='tampa');syncAll();}
+
+function selectProvider(key){selectedProvider=key||null;var d=document.getElementById('provider-display'),n=document.getElementById('provider-name-display');if(selectedProvider&&PROVIDERS[selectedProvider]){d.style.display='block';n.textContent=PROVIDERS[selectedProvider].name;}else d.style.display='none';}
+
+function toggleNoAtty(){noAtty=!noAtty;document.getElementById('tgl-noatty').classList.toggle('on',noAtty);document.querySelectorAll('.atty-fi').forEach(function(el){el.disabled=noAtty;el.style.opacity=noAtty?0.45:1;});syncAll();}
+
+function toggleNoIns(){noIns=!noIns;document.getElementById('tgl-noins').classList.toggle('on',noIns);document.querySelectorAll('.ins-fi').forEach(function(el){el.disabled=noIns;el.style.opacity=noIns?0.45:1;});syncAll();}
+
+function toggleGuardian(doc){document.getElementById('gb-'+doc).classList.toggle('show');document.getElementById('gt-'+doc).classList.toggle('open');}
+
+function pickRelation(doc,el,val){document.getElementById(doc+'-rel-row').querySelectorAll('.radio-chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');document.getElementById(doc+'_rel').value=val;}
+
+function setMedHx(choice){document.getElementById('medhx-yes').classList.toggle('on',choice==='yes');document.getElementById('medhx-no').classList.toggle('on',choice==='no');}
+
+function updateSigStatus(key){
+  var attested=document.getElementById('attest_'+key)?document.getElementById('attest_'+key).checked:false;
+  var canvas=document.getElementById('sig_'+key+'_sig');
+  var signed=canvas?canvas.dataset.signed==='1':false;
+  sigStatus[key]=attested&&signed;
+}
+
+function renderReview(){
+  syncAll();
+  var list=document.getElementById('review-doc-list');
+  list.innerHTML=DOCS.map(function(d){
+    var signed=sigStatus[d.key];
+    return '<div class="review-row"><div class="review-doc">'+d.label+'</div><div style="display:flex;align-items:center;gap:10px;"><div class="review-status '+(signed?'signed':'unsigned')+'">'+(signed?'\u2713 Signed':'Not Signed')+'</div><span class="review-jump" onclick="showStep('+d.step+')">Review</span></div></div>';
+  }).join('');
+}
+
+function capturePacketData(){
+  var off=selectedOffice?OFFICES[selectedOffice]:{name:'(none selected)',addr:''};
+  var prov=selectedProvider?PROVIDERS[selectedProvider]:null;
+  return {
+    pt_name:v('pt_name'),pt_dob:v('pt_dob'),pt_dol:v('pt_dol'),pt_today:v('pt_today'),
+    office:off,provider:prov,
+    atty:{none:noAtty,firm:v('atty_firm'),name:v('atty_name'),phone:v('atty_phone'),fax:v('atty_fax'),email:v('atty_email'),addr:v('atty_addr')},
+    ins:{none:noIns,carrier:v('ins_carrier'),claim:v('ins_claim')},
+    sigs:{
+      hipaa:{sig:getSigData('sig_hipaa_sig'),attested:document.getElementById('attest_hipaa')?document.getElementById('attest_hipaa').checked:false},
+      toa:{sig:getSigData('sig_toa_sig'),attested:document.getElementById('attest_toa')?document.getElementById('attest_toa').checked:false,witness:v('toa_witness'),guardName:v('toa_guard_name'),minorName:v('toa_minor_name'),minorDob:v('toa_minor_dob'),guardPhone:v('toa_guard_phone'),relation:v('toa_rel'),guardSig:getSigData('sig_toa_guard'),guardDate:v('toa_guard_date'),guardWitness:v('toa_guard_witness')},
+      iot:{sig:getSigData('sig_iot_sig'),attested:document.getElementById('attest_iot')?document.getElementById('attest_iot').checked:false},
+      aob:{sig:getSigData('sig_aob_sig'),attested:document.getElementById('attest_aob')?document.getElementById('attest_aob').checked:false,rel:v('aob_rel')},
+      rr1:{sig:getSigData('sig_rr1_sig'),attested:document.getElementById('attest_rr1')?document.getElementById('attest_rr1').checked:false,fromName:v('rr1_from_name'),fromPhone:v('rr1_from_phone'),fromFax:v('rr1_from_fax'),fromAddr:v('rr1_from_addr'),periodFrom:v('rr1_period_from'),periodTo:v('rr1_period_to'),witness:v('rr1_witness')},
+      rr2:{sig:getSigData('sig_rr2_sig'),attested:document.getElementById('attest_rr2')?document.getElementById('attest_rr2').checked:false,witness:v('rr2_witness')},
+      fr:{sig:getSigData('sig_fr_sig'),attested:document.getElementById('attest_fr')?document.getElementById('attest_fr').checked:false,rpName:v('fr_rp_name'),rpRel:v('fr_rp_rel'),witness:v('fr_witness')}
+    },
+    medhx:document.getElementById('medhx-yes')&&document.getElementById('medhx-yes').classList.contains('on')?'YES':document.getElementById('medhx-no')&&document.getElementById('medhx-no').classList.contains('on')?'NO':'\u2014'
+  };
+}
+
+function _f(val){return val&&val.trim()?esc(val):'<span style="color:#999;">\u2014</span>';}
+
+function _sig(val,color){
+  color=color||'#1a2535';
+  if(val&&val.trim()){
+    if(val.startsWith('data:image')) return '<img src="'+val+'" style="height:36pt;max-width:100%;display:block;" alt="signature">';
+    return '<span style="font-family:\'Libre Baskerville\',Georgia,serif;font-style:italic;font-size:16pt;color:'+color+';">'+esc(val)+'</span>';
+  }
+  return '<span style="color:#999;">(unsigned)</span>';
+}
+
+function _chk(on){return on?'<span style="display:inline-block;width:12pt;height:12pt;border:1.5pt solid #000;background:#000;color:#fff;text-align:center;font-size:10pt;font-weight:900;line-height:12pt;">\u2713</span>':'<span style="display:inline-block;width:12pt;height:12pt;border:1.5pt solid #000;"></span>';}
+
+function buildPdfCss(mono){
+  var gH=mono?'#000000':'#1f5522',gA=mono?'#000000':'#2e7d32',gL=mono?'#ffffff':'#e8f5ee',bd=mono?'#000000':'#1f5522',bc=mono?'#000000':'#1a2535',gG=mono?'#000000':'#2e7d32',gN=mono?'#000000':'#1a4fa0';
+  return '@page{size:letter;margin:0;}*{box-sizing:border-box;margin:0;padding:0;}html,body{width:816px;}body{font-family:\'DM Sans\',Arial,sans-serif;color:'+bc+';background:#fff;}.pdf-page{width:816px;height:1056px;padding:40px 52px 80px 52px;page-break-after:always;position:relative;overflow:hidden;background:#fff;}.pdf-page:last-child{page-break-after:auto;}.pg-hdr{border-bottom:2pt solid '+bd+';padding-bottom:6pt;margin-bottom:10pt;display:flex;justify-content:space-between;align-items:flex-end;}.pg-hdr-brand{font-family:\'Libre Baskerville\',Georgia,serif;font-size:14pt;font-weight:700;color:'+gH+';}.pg-hdr-brand .g{color:'+gG+';}.pg-hdr-brand .n{color:'+gN+';}.pg-hdr-locs{font-size:8pt;color:#222;text-align:right;line-height:1.4;}.pg-title{font-family:\'Libre Baskerville\',Georgia,serif;font-size:15pt;font-weight:700;color:'+gH+';margin-bottom:2pt;}.pg-sub{font-size:9pt;color:#333;margin-bottom:8pt;}.pg-body{font-size:12pt;line-height:1.5;color:'+bc+';}.pg-body p{margin-bottom:6pt;}.pg-body h3{font-family:\'Libre Baskerville\',Georgia,serif;font-size:12pt;font-weight:700;color:'+gH+';margin-top:8pt;margin-bottom:4pt;padding-bottom:2pt;border-bottom:0.75pt solid '+gA+';}.pg-body ul,.pg-body ol{margin-left:16pt;margin-bottom:6pt;}.pg-body li{margin-bottom:2pt;}.pg-body strong{font-weight:700;color:'+bc+';}.pt-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6pt;background:'+gL+';border:0.75pt solid '+bd+';padding:5pt 8pt;border-radius:3pt;margin-bottom:8pt;font-size:10pt;}.pt-strip .lbl{font-size:8pt;text-transform:uppercase;color:#333;font-weight:700;}.pt-strip .val{font-weight:600;font-size:11.5pt;color:#1a4fa0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.sig-area{margin-top:8pt;padding:6pt 8pt;border:1pt solid '+gA+';background:'+gL+';}.sig-row{display:grid;grid-template-columns:2fr 1.3fr 1fr;gap:10pt;margin-top:4pt;align-items:end;}.sig-cell{border-bottom:1pt solid #000;padding:2pt;min-height:32pt;font-family:\'Libre Baskerville\',Georgia,serif;font-style:italic;font-size:15.5pt;color:#1a4fa0;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:flex;align-items:flex-end;}.sig-cell.print{font-family:\'DM Sans\',Arial,sans-serif;font-style:normal;font-size:13.5pt;font-weight:500;color:#1a4fa0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.sig-lbl{font-size:8pt;color:#333;text-transform:uppercase;margin-top:3pt;font-weight:700;}.attest{font-size:10pt;margin-top:6pt;display:flex;gap:5pt;}.alert{border:1.5pt solid #000;padding:5pt 8pt;font-size:10pt;margin:6pt 0;background:'+(mono?'#fff':'#fffbe6')+';}.ver-stamp{position:absolute;bottom:20px;left:52px;right:52px;border-top:0.75pt solid #555;padding-top:3pt;display:flex;justify-content:space-between;font-size:8pt;color:#333;font-weight:500;}.iot-page{font-family:\'Times New Roman\',serif;color:#000;padding:20px 36px;}.oir-header{display:flex;align-items:center;gap:10pt;margin-bottom:6pt;}.oir-seal{font-size:27pt;line-height:1;}.oir-header-text{flex:1;}.oir-agency-name{font-size:14pt;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}.oir-divider{border-top:1pt solid #000;width:80%;margin:2pt 0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.oir-bureau{font-size:14pt;font-style:italic;font-weight:700;}.oir-title{text-align:center;margin-bottom:12pt;}.oir-title-main{font-size:12pt;font-weight:700;margin-bottom:2pt;}.oir-title-sub{font-size:12pt;font-weight:700;}.oir-body{font-size:11.5pt;line-height:1.13;}.oir-affirm-intro{margin-bottom:2pt;font-size:11.5pt;}.oir-item{margin-bottom:4pt;font-size:11.5pt;line-height:1.13;}.oir-item-num{margin-right:6pt;}.oir-services-box{padding:1pt 0;margin:2pt 0;}.oir-service-line{border-bottom:0.5pt solid #000;min-height:13pt;padding:0 0;font-size:12pt;}.oir-service-line:last-child{border-bottom:none;}.oir-sig-intro{font-size:11pt;margin:3pt 0 1pt;}.oir-sig-row{display:grid;grid-template-columns:2fr 2fr 1fr;gap:10pt;align-items:end;margin-bottom:2pt;}.oir-sig-line{border-bottom:1pt solid #000;min-height:18pt;padding:2pt 0 0;font-size:12.5pt;color:#1a4fa0;-webkit-print-color-adjust:exact;print-color-adjust:exact;display:flex;align-items:flex-end;padding-bottom:0;}.oir-sig-lbl{font-size:11pt;margin-top:2pt;}.oir-sig-lbl em{font-size:9pt;font-style:italic;}.oir-provider-intro{font-size:11pt;margin:4pt 0 1pt;}.oir-fraud{border:1pt solid #000;background:'+(mono?'#fff':'#D9D9D9')+';-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:2pt 6pt;margin-top:13pt;font-size:11pt;line-height:1.2;}.oir-note{border:1pt solid #000;background:'+(mono?'#fff':'#D9D9D9')+';-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:2pt 6pt;margin-top:13pt;font-size:10.75pt;line-height:1.2;}.oir-form-id{font-size:10pt;margin-top:3pt;font-weight:700;text-align:left;}';
+}
+
+function renderHeader(d){
+  return '<div class="pg-hdr"><div class="pg-hdr-brand"><span class="n">Pain</span><span class="g">Med</span></div><div class="pg-hdr-locs"><strong>'+esc(d.office.name)+'</strong><br>'+esc(d.office.addr)+'</div></div>';
+}
+
+function renderPatientStrip(d){
+  return '<div class="pt-strip"><div><div class="lbl">Patient</div><div class="val">'+_f(d.pt_name)+'</div></div><div><div class="lbl">Date of Birth</div><div class="val">'+_f(d.pt_dob)+'</div></div><div><div class="lbl">Date of Loss</div><div class="val">'+_f(d.pt_dol)+'</div></div></div>';
+}
+
+function renderVerStamp(docName){
+  return '<div class="ver-stamp"><span>'+esc(docName)+' · v_04.13.26</span><span>Suncoast Physical Medicine, LLC D/B/A PainMed</span></div>';
+}
+
+function renderSigBlock(title,sig,ptName,ptDate,attested,extras){
+  extras=extras||'';
+  return '<div class="sig-area"><div style="font-size:9pt;font-weight:700;text-transform:uppercase;margin-bottom:4pt;">'+esc(title)+'</div><div class="sig-row"><div><div class="sig-cell">'+_sig(sig)+'</div><div class="sig-lbl">Signature</div></div><div><div class="sig-cell print">'+_f(ptName)+'</div><div class="sig-lbl">Printed Name</div></div><div><div class="sig-cell print">'+_f(ptDate)+'</div><div class="sig-lbl">Date</div></div></div><div class="attest">'+_chk(attested)+' <span>Patient attestation confirmed</span></div>'+extras+'</div>';
+}
+
+function renderHIPAA(d){
+  return '<div class="pdf-page">'+renderHeader(d)+'<div class="pg-title">HIPAA Privacy Notice — Acknowledgment of Receipt</div><div class="pg-sub">Notice of Privacy Practices · Suncoast Physical Medicine, LLC (d/b/a PainMed)</div>'+renderPatientStrip(d)+'<div class="pg-body"><p>I acknowledge that I have received a copy of the PainMed <strong>Notice of Privacy Practices</strong>, which describes how my protected health information may be used and disclosed and how I can access it.</p><p>The full text of the PainMed HIPAA Notice of Privacy Practices is available upon request at the front desk and will be provided to you electronically following completion of this packet.</p><h3>Optional Authorization — Medication History Access</h3><p>I authorize Suncoast Physical Medicine, LLC (d/b/a PainMed) to download and access the prior <strong>thirteen (13) months</strong> of my medication history through my insurance company and authorized medication history databases for the purpose of reviewing medications relevant to my care.</p><p><strong>My election:</strong> &nbsp;'+_chk(d.medhx==='YES')+' <strong>YES</strong> — I authorize access &nbsp;&nbsp;'+_chk(d.medhx==='NO')+' <strong>NO</strong> — I do not authorize access</p></div>'+renderSigBlock('Patient Acknowledgment — HIPAA',d.sigs.hipaa.sig,d.pt_name,d.pt_today,d.sigs.hipaa.attested)+renderVerStamp('HIPAA Privacy Notice Acknowledgment')+'</div>';
+}
+
+function renderTOA(d){
+  var s=d.sigs.toa;
+  var hasGuardian=s.guardName||s.minorName;
+  var guardianExtras=hasGuardian?'<div style="margin-top:5pt;padding-top:4pt;border-top:0.5pt solid #999;"><div style="font-size:8pt;font-weight:700;text-transform:uppercase;margin-bottom:3pt;">Minor / Guardian Signature</div><div style="font-size:10pt;">Guardian: <strong>'+_f(s.guardName)+'</strong> · Relationship: <strong>'+_f(s.relation)+'</strong> · Phone: <strong>'+_f(s.guardPhone)+'</strong></div><div style="font-size:10pt;">Minor: <strong>'+_f(s.minorName)+'</strong> · DOB: <strong>'+_f(s.minorDob)+'</strong></div><div class="sig-row" style="margin-top:4pt;"><div><div class="sig-cell">'+_sig(s.guardSig)+'</div><div class="sig-lbl">Guardian Signature</div></div><div><div class="sig-cell print">'+_f(s.guardDate)+'</div><div class="sig-lbl">Date</div></div><div><div class="sig-cell print">'+_f(s.guardWitness)+'</div><div class="sig-lbl">Witness</div></div></div></div>':'';
+  var witnessExtra=s.witness?'<div style="font-size:10pt;margin-top:4pt;"><strong>Staff Witness:</strong> '+_f(s.witness)+'</div>':'';
+  return '<div class="pdf-page">'+renderHeader(d)+'<div class="pg-title">Terms of Acceptance &amp; Consent for Care</div><div class="pg-sub">Scope of care, examination, imaging, risks, consent to treatment, and patient rights.</div>'+renderPatientStrip(d)+'<div class="pg-body" style="font-size:10.5pt;line-height:1.45;"><h3 style="font-size:11pt;">Scope of Care</h3><p>PainMed provides evaluation and treatment of neuromusculoskeletal conditions through chiropractic care, physical medicine, active and passive rehabilitation, and massage therapy. If during your evaluation we identify a condition outside our scope of practice, we may recommend referral to an appropriate provider.</p><h3 style="font-size:11pt;">Examination, Diagnostic Imaging, and Reassessment</h3><p>Your care may include physical examination, orthopedic and neurological testing, range-of-motion assessment, and diagnostic imaging when clinically indicated. Reassessment and repeat imaging may be recommended based on clinical judgment.</p><h3 style="font-size:11pt;">Risks of Care</h3><p><strong>Chiropractic / manual care:</strong> temporary soreness, stiffness, bruising, muscle strain, soft-tissue injury, aggravation of existing condition; rarely — disc injury, fracture, nerve irritation, or stroke from cervical manipulation (vertebrobasilar injury). <strong>Rehab &amp; modalities:</strong> soreness, temporary symptom increase, skin irritation, rare allergic reactions. No guarantees have been made regarding outcomes. <strong>X-ray:</strong> exposure to ionizing radiation. <em>If pregnant or possibly pregnant, inform clinical staff before any imaging.</em></p><h3 style="font-size:11pt;">Diagnostic Imaging Ownership</h3><p>X-ray and other diagnostic images are the property of PainMed and are part of your medical record. Copies may be requested per Florida law and HIPAA (cost-based fee may apply).</p><h3 style="font-size:11pt;">Video Surveillance Notice</h3><p>Non-disrobing areas are under video surveillance for safety. <strong>No surveillance in exam rooms, treatment bays where patients disrobe, or restrooms.</strong></p><h3 style="font-size:11pt;">Consent to Evaluation and Treatment</h3><p>I have read and understand the Terms of Acceptance above. I voluntarily consent to evaluation and treatment, may ask questions at any time, may refuse or discontinue treatment, and understand no outcome is guaranteed.</p></div>'+renderSigBlock('Patient Consent — Terms of Acceptance',s.sig,d.pt_name,d.pt_today,s.attested,witnessExtra+guardianExtras)+renderVerStamp('Terms of Acceptance & Consent for Care')+'</div>';
+}
+
+function renderIOT(d){
+  var s=d.sigs.iot;
+  var provSig=d.provider&&d.provider.sig?'<img src="'+d.provider.sig+'" crossorigin="anonymous" style="width:'+(d.provider.widthPct||100)+'%;height:auto;display:block;margin-left:0;margin-top:auto;position:relative;top:'+(d.provider.descenderPt||0)+'pt;" alt="Provider Signature">':'';
+  var provName=d.provider?esc(d.provider.name):'';
+  var provDate=d.provider?_f(d.pt_today):'';
+  return '<div class="pdf-page iot-page"><div class="oir-header"><div class="oir-seal"><img src="https://raw.githubusercontent.com/DrBerns/SpineMed/main/Florida_State_Seal.png" crossorigin="anonymous" style="height:56pt;width:auto;"></div><div class="oir-header-text"><div class="oir-agency-name">Office of Insurance Regulation</div><div class="oir-divider"></div><div class="oir-bureau"><em>Bureau of Property &amp; Casualty Forms and Rates</em></div></div></div><div class="oir-title"><div class="oir-title-main">Standard Disclosure and Acknowledgement Form</div><div class="oir-title-sub">Personal Injury Protection — Initial Treatment or Service Provided</div></div><div class="oir-body"><div class="oir-affirm-intro">The undersigned insured person (or guardian of such person) affirms:</div><div class="oir-item" style="margin-top:7pt;"><span class="oir-item-num">1.</span>The services or treatment set forth below were <strong>actually rendered.</strong> This means that those services have <strong>already been provided.</strong></div><div class="oir-services-box"><div class="oir-service-line"><strong style="text-align:center;display:block;">Examination and Treatment</strong></div><div class="oir-service-line">&nbsp;</div><div class="oir-service-line">&nbsp;</div></div><div class="oir-item"><span class="oir-item-num">2.</span>I have the right and the <strong>duty to confirm</strong> that the services have already been provided.</div><div class="oir-item"><span class="oir-item-num">3.</span>I was <strong>not solicited</strong> by any person to seek any services from the medical provider of the services described above.</div><div class="oir-item"><span class="oir-item-num">4.</span>The medical provider has <strong>explained</strong> the services to me for which payment is being claimed.</div><div class="oir-item"><span class="oir-item-num">5.</span>If I notify the insurer in writing of a billing error, I may be entitled to a portion of any reduction in the amounts paid by my motor vehicle insurer. If entitled, my share would be at least 20% of the amount of the reduction, up to $500.</div><div class="oir-sig-intro" style="margin-top:10pt;">Insured Person (patient receiving treatment or services) or Guardian of Insured Person:</div><div class="oir-sig-row" style="margin-top:10pt;"><div><div class="oir-sig-line">'+_f(d.pt_name)+'</div><div class="oir-sig-lbl">Name <em>(PRINT or TYPE)</em></div></div><div><div class="oir-sig-line">'+_sig(s.sig,'#000')+'</div><div class="oir-sig-lbl">Signature</div></div><div><div class="oir-sig-line">'+_f(d.pt_today)+'</div><div class="oir-sig-lbl">Date</div></div></div><div class="oir-provider-intro" style="margin-top:10pt;">The undersigned licensed medical professional or medical director, if applicable, affirms the statement numbered 1 above and also:</div><div class="oir-item"><span class="oir-item-num">A.</span>I have <strong>not solicited</strong> or caused the insured person, who was involved in a motor vehicle accident, to be solicited to make a claim for Personal Injury Protection benefits.</div><div class="oir-item"><span class="oir-item-num">B.</span>The treatment or services rendered were explained to the insured person, or his or her guardian, <strong>sufficiently</strong> for that person to sign this form with informed consent.</div><div class="oir-item"><span class="oir-item-num">C.</span>The accompanying statement or bill is <strong>properly completed</strong> in all material provisions and all relevant information has been provided therein. This means that each request for information has been responded to <strong>truthfully, accurately</strong>, and in a <strong>substantially complete</strong> manner.</div><div class="oir-item"><span class="oir-item-num">D.</span>The coding of procedures on the accompanying statement or bill is proper. This means that <strong>no service has been upcoded, unbundled</strong>, or constitutes an invalid <strong>or not medically necessary diagnostic test</strong> as defined by Section 627.732(14) and (15), Florida Statutes or Section 627.736(5)(b)6, Florida Statutes.</div><div class="oir-sig-intro" style="margin-top:8pt;">Licensed Medical Professional Rendering Treatment/Services or Medical Director, if applicable <em>(Signature by his/her <strong>own hand</strong>):</em></div><div class="oir-sig-row"><div><div class="oir-sig-line">'+provName+'</div><div class="oir-sig-lbl">Name <em>(PRINT or TYPE)</em></div></div><div><div class="oir-sig-line">'+provSig+'</div><div class="oir-sig-lbl">Signature</div></div><div><div class="oir-sig-line">'+provDate+'</div><div class="oir-sig-lbl">Date</div></div></div><div class="oir-fraud">Any person who knowingly and with intent to injure, defraud, or deceive any insurer files a statement of Claim or an application containing any false, incomplete, or misleading information is guilty of a felony of the third degree per Section 817.234(1)(b), Florida Statutes.</div><div class="oir-note"><strong>Note:</strong> The <strong>original</strong> of this form must be furnished to the insurer pursuant to Section 627.736(4)(b), Florida Statutes and may <strong>not</strong> be electronically furnished. Failure to furnish this form may result in non-payment of the claim.</div><div class="oir-form-id">OIR-B1-1571 · Pub. 1/2004</div></div></div>';
+}
+
+function renderAOB(d){
+  var s=d.sigs.aob;
+  var attyCombo=d.atty.none?'No attorney on file':([d.atty.firm,d.atty.name].filter(Boolean).join(' — ')||'—');
+  var relExtra=s.rel?'<div style="font-size:10pt;margin-top:4pt;"><strong>Relationship (if Guardian):</strong> '+_f(s.rel)+'</div>':'';
+  return '<div class="pdf-page">'+renderHeader(d)+'<div class="pg-title">Assignment of Benefits — PIP</div><div class="pg-sub">Assignment of Personal Injury Protection insurance benefits pursuant to § 627.736, Florida Statutes.</div>'+renderPatientStrip(d)+'<div class="pt-strip" style="margin-top:4pt;"><div><div class="lbl">PIP Carrier</div><div class="val">'+(d.ins.none?'No insurance on file':_f(d.ins.carrier))+'</div></div><div><div class="lbl">Claim #</div><div class="val">'+(d.ins.none?'—':_f(d.ins.claim))+'</div></div><div><div class="lbl">Attorney / Firm</div><div class="val">'+_f(attyCombo)+'</div></div></div><div class="pg-body" style="font-size:11pt;"><h3>Assignment</h3><p>I, <strong>'+_f(d.pt_name)+'</strong>, hereby <strong>irrevocably</strong> assign to <strong>Suncoast Physical Medicine, LLC D/B/A PainMed</strong> all rights and benefits under my PIP coverage arising from the motor vehicle accident on the Date of Loss above, to the extent of charges for services rendered. This assignment is made pursuant to § 627.736, Florida Statutes, and shall remain irrevocable until all outstanding charges are fully resolved.</p><h3>Direction to Pay &amp; Authorization to Release Information</h3><p>I direct my PIP carrier and, where applicable, my attorney to pay sums due directly to the Assignee, and to withhold from any settlement an amount sufficient to satisfy any outstanding balance. I further authorize the Assignee to release medical records and billing information to my PIP carrier and my attorney solely as necessary to facilitate payment.</p><h3>Patient Acknowledgement</h3><ol><li>I have read and understand this Assignment of Benefits.</li><li>I am the named insured or an authorized representative under the applicable PIP policy.</li><li>This assignment does not relieve me of personal financial responsibility for charges not covered by my PIP insurer.</li><li>I was not solicited by any person to seek services from this provider.</li><li>I will notify the Assignee promptly of any changes to my insurance coverage, contact information, or legal representation.</li></ol></div>'+renderSigBlock('Patient / Guardian Signature — AOB',s.sig,d.pt_name,d.pt_today,s.attested,relExtra)+renderVerStamp('Assignment of Benefits — PIP')+'</div>';
+}
+
+function renderRR1(d,mono){
+  var s=d.sigs.rr1;
+  var witnessExtra=s.witness?'<div style="font-size:10pt;margin-top:4pt;"><strong>Witness:</strong> '+_f(s.witness)+'</div>':'';
+  return '<div class="pdf-page">'+renderHeader(d)+'<div class="pg-title">Authorization to Release Medical Records</div><div class="pg-sub">Authorization for Third-Party Providers to Release Records to PainMed · HIPAA-Compliant</div>'+renderPatientStrip(d)+'<div class="pg-body"><h3>Patient Information</h3><div style="display:grid;grid-template-columns:2fr 1fr;gap:10pt;margin-bottom:10pt;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Patient Name</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.pt_name)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Date of Birth</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.pt_dob)+'</div></div></div><h3>Please Release Records To</h3><div style="background:'+(mono?'#fff':'#e8f5ee')+';border:1pt solid '+(mono?'#000':'#2e7d32')+';border-radius:4pt;padding:8pt 10pt;margin-bottom:10pt;font-size:12pt;"><strong>'+esc(d.office.name)+'</strong><br>'+esc(d.office.addr).replace(' \u00b7 Ph:','<br>Ph:')+'</div><h3>Release Records From</h3><div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10pt;margin-bottom:8pt;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Provider / Hospital / Facility Name</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(s.fromName)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Phone</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(s.fromPhone)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Fax</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(s.fromFax)+'</div></div></div><div style="margin-bottom:10pt;"><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Address</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(s.fromAddr)+'</div></div><h3>Records Requested</h3><p>I hereby authorize and request the release of the <strong>complete medical history, records, reports, imaging, and treatment notes</strong> in your possession concerning my care during the period below:</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin:8pt 0;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">From Date</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(s.periodFrom)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">To Date (or “Present”)</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(s.periodTo)+'</div></div></div><p>I understand I may revoke this authorization at any time in writing. A photocopy or fax of this authorization shall be considered as valid as the original.</p></div>'+renderSigBlock('Patient Authorization — Records Release (Incoming)',s.sig,d.pt_name,d.pt_today,s.attested,witnessExtra)+renderVerStamp('Authorization to Release Records — Incoming')+'</div>';
+}
+
+function renderRR2(d,mono){
+  var s=d.sigs.rr2;
+  var witnessExtra=s.witness?'<div style="font-size:10pt;margin-top:4pt;"><strong>Witness:</strong> '+_f(s.witness)+'</div>':'';
+  var noAttyBanner=d.atty.none?'<div class="alert" style="background:#fffbe6;margin-bottom:10pt;">No attorney on file at signing. Signature captured; release will be activated once attorney information is provided.</div>':'';
+  return '<div class="pdf-page">'+renderHeader(d)+'<div class="pg-title">Authorization to Release Medical Records to Attorney</div><div class="pg-sub">Authorization for PainMed to Release Records to Attorney of Record · HIPAA-Compliant</div>'+renderPatientStrip(d)+'<div class="pg-body">'+noAttyBanner+'<h3>Patient Information</h3><div style="display:grid;grid-template-columns:2fr 1fr;gap:10pt;margin-bottom:10pt;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Patient Name</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.pt_name)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Date of Birth</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.pt_dob)+'</div></div></div><h3>Records Released By</h3><div style="background:'+(mono?'#fff':'#e8f5ee')+';border:1pt solid '+(mono?'#000':'#2e7d32')+';border-radius:4pt;padding:8pt 10pt;margin-bottom:10pt;font-size:12pt;"><strong>'+esc(d.office.name)+'</strong><br>'+esc(d.office.addr).replace(' \u00b7 Ph:','<br>Ph:')+'</div><h3>Records Released To (Attorney of Record)</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin-bottom:8pt;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Firm Name</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.atty.firm)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Attorney Name</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.atty.name)+'</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10pt;margin-bottom:8pt;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Phone</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.atty.phone)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Fax</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.atty.fax)+'</div></div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Email</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.atty.email)+'</div></div></div><div style="margin-bottom:10pt;"><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;margin-bottom:3pt;">Firm Address</div><div style="border-bottom:1pt solid #000;min-height:22pt;padding:2pt 0;font-size:12pt;">'+_f(d.atty.addr)+'</div></div><h3>Scope of Release</h3><p>I hereby authorize Suncoast Physical Medicine, LLC (d/b/a PainMed) to release the <strong>complete medical history, records, reports, imaging, billing records, and treatment notes</strong> related to my care to the attorney named above for purposes of representation in the matter arising from the Date of Loss listed above.</p><p>I understand I may revoke this authorization at any time in writing. A photocopy or fax of this authorization shall be considered as valid as the original.</p></div>'+renderSigBlock('Patient Authorization — Records Release (Outgoing)',s.sig,d.pt_name,d.pt_today,s.attested,witnessExtra)+renderVerStamp('Authorization to Release Records — Outgoing (Attorney)')+'</div>';
+}
+
+function renderFR(d,mono){
+  var s=d.sigs.fr;
+  var rpExtra=(s.rpName||s.rpRel)?'<div style="margin-top:5pt;padding:5pt 7pt;border:0.75pt solid #000;"><div style="font-size:9pt;font-weight:700;text-transform:uppercase;margin-bottom:3pt;">If Patient is Not the Responsible Party</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10pt;"><div><div class="sig-cell print">'+_f(s.rpName)+'</div><div class="sig-lbl">Print Responsible Party\'s Name</div></div><div><div class="sig-cell print">'+_f(s.rpRel)+'</div><div class="sig-lbl">Relationship to Patient</div></div></div></div>':'';
+  var witnessExtra=s.witness?'<div style="font-size:10pt;margin-top:4pt;"><strong>Staff Witness:</strong> '+_f(s.witness)+'</div>':'';
+  var attyBlock=(!d.atty.none&&(d.atty.firm||d.atty.name))?'<div style="margin-bottom:12pt;padding:8pt 10pt;border:1pt solid '+(mono?'#000':'#1f5522')+';border-radius:4pt;background:'+(mono?'#fff':'#e8f5ee')+';"><div style="font-size:9pt;font-weight:700;text-transform:uppercase;color:'+(mono?'#000':'#1f5522')+';margin-bottom:6pt;">Attorney / Firm of Record</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8pt;font-size:11pt;margin-bottom:6pt;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;">Firm</div>'+_f(d.atty.firm)+'</div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;">Attorney</div>'+_f(d.atty.name)+'</div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8pt;font-size:11pt;margin-bottom:6pt;"><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;">Phone</div>'+_f(d.atty.phone)+'</div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;">Fax</div>'+_f(d.atty.fax)+'</div><div><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;">Email</div>'+_f(d.atty.email)+'</div></div><div style="font-size:11pt;"><div style="font-size:8pt;font-weight:700;text-transform:uppercase;color:#333;">Address</div>'+_f(d.atty.addr)+'</div></div>':'';
+  return '<div class="pdf-page">'+renderHeader(d)+'<div class="pg-title">Financial Responsibility Consent &amp; Authorization</div><div class="pg-sub">Acknowledgment of financial responsibility for charges not covered by insurance.</div>'+renderPatientStrip(d)+attyBlock+'<div class="pg-body"><p>I, the undersigned patient/parent/guardian ("<strong>Responsible Party</strong>"), understand it is my responsibility to provide Suncoast Physical Medicine, LLC (d/b/a <strong>PainMed</strong>) with all necessary information so that PainMed may submit charges for my care through insurance that may help satisfy my charges. I understand that I will be responsible for any charges not covered by personal injury protection or medical payments coverage insurance benefits, including co-payments and any applicable deductibles.</p><p>As the Responsible Party, I will receive copies of billing and medical records upon request or as periodically submitted by PainMed.</p></div>'+renderSigBlock('Patient / Responsible Party Signature',s.sig,d.pt_name,d.pt_today,s.attested,witnessExtra+rpExtra)+renderVerStamp('Financial Responsibility Consent & Authorization')+'</div>';
+}
+
+function buildPacketHtml(mono){
+  var d=capturePacketData();
+  var docs=[renderHIPAA(d),renderTOA(d),renderIOT(d),renderAOB(d),renderRR1(d,mono),renderRR2(d,mono),renderFR(d,mono)].join('\n');
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><style>'+buildPdfCss(mono)+'</style></head><body>'+docs+'</body></html>';
+}
+
+function exportPDF(){exportPacketPdf('color');}
+
+async function exportPacketPdf(variant){
+  syncAll();
+  var mono=variant==='mono';
+  var data=capturePacketData();
+  var nameSlug=(data.pt_name||'patient').replace(/[^a-zA-Z0-9]/g,'_');
+  var dateSlug=(data.pt_today||'undated').replace(/\//g,'-');
+  var suffix=mono?'_BW':'_Color';
+  var filename='PainMed_SignaturePacket_'+nameSlug+'_'+dateSlug+suffix+'.pdf';
+  var iframe=document.createElement('iframe');
+  iframe.style.cssText='position:fixed;left:-10000px;top:0;width:816px;height:1056px;border:0;visibility:hidden;';
+  document.body.appendChild(iframe);
+  var html=buildPacketHtml(mono);
+  var doc=iframe.contentDocument||iframe.contentWindow.document;
+  doc.open();doc.write(html);doc.close();
+  await new Promise(function(resolve){if(iframe.contentDocument.readyState==='complete')return resolve();iframe.onload=function(){resolve();};setTimeout(resolve,1500);});
+  await new Promise(function(r){setTimeout(r,400);});
+  try{if(iframe.contentDocument.fonts&&iframe.contentDocument.fonts.ready)await iframe.contentDocument.fonts.ready;}catch(e){}
+  var pages=iframe.contentDocument.querySelectorAll('.pdf-page');
+  if(!pages.length){document.body.removeChild(iframe);alert('PDF build error: no pages generated.');return;}
+  var pdf;
+  try{pdf=new(window.jspdf?window.jspdf.jsPDF:window.jsPDF)({unit:'in',format:'letter',orientation:'portrait'});}
+  catch(e){document.body.removeChild(iframe);alert('jsPDF unavailable: '+e.message);return;}
+  for(var i=0;i<pages.length;i++){
+    var pageEl=pages[i];pageEl.style.width='816px';pageEl.style.height='1056px';
+    var canvas=await html2canvas(pageEl,{scale:2,useCORS:true,allowTaint:true,logging:false,backgroundColor:'#ffffff',width:816,height:1056,windowWidth:816,windowHeight:1056});
+    var imgData=canvas.toDataURL('image/jpeg',0.95);
+    if(i>0)pdf.addPage('letter','portrait');
+    pdf.addImage(imgData,'JPEG',0,0,8.5,11,undefined,'FAST');
+  }
+  pdf.save(filename);
+  document.body.removeChild(iframe);
+}
+
+const PACKET_WORKER_URL = 'https://spinemed-imap-worker.drberns.workers.dev/sendemail';
+const KEY_MAP = {'sig_hipaa_sig':'hipaa','sig_toa_sig':'toa','sig_iot_sig':'iot','sig_aob_sig':'aob','sig_rr1_sig':'rr1','sig_rr2_sig':'rr2','sig_fr_sig':'fr'};
+
+function getSigData(id){var c=document.getElementById(id);if(!c||c.dataset.signed!=='1')return null;return c.toDataURL('image/png');}
+
+function initSigPads(){document.querySelectorAll('.sig-canvas').forEach(function(c){initOnePad(c);});}
+
+function initOnePad(canvas){
+  function sizeCanvas(){
+    var w=canvas.parentElement.offsetWidth;
+    if(w>0&&canvas.width!==w){
+      var img=canvas.dataset.signed==='1'?canvas.toDataURL():null;
+      canvas.width=w;var ctx=canvas.getContext('2d');
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.strokeStyle='#1a2535';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+      if(img){var i=new Image();i.onload=function(){ctx.drawImage(i,0,0,canvas.width,canvas.height);};i.src=img;}
+    }
+  }
+  sizeCanvas();
+  var ctx=canvas.getContext('2d');
+  ctx.strokeStyle='#1a2535';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+  var drawing=false,lastX=0,lastY=0;
+  function getPos(e){var r=canvas.getBoundingClientRect();var sx=canvas.width/r.width,sy=canvas.height/r.height;if(e.touches)return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};}
+  function onStart(e){e.preventDefault();sizeCanvas();drawing=true;var p=getPos(e);lastX=p.x;lastY=p.y;ctx.beginPath();ctx.moveTo(lastX,lastY);if(canvas.dataset.signed!=='1'){canvas.dataset.signed='1';var ph=document.getElementById(canvas.id+'_ph');if(ph)ph.style.display='none';var key=KEY_MAP[canvas.id];if(key)updateSigStatus(key);}}
+  function onMove(e){if(!drawing)return;e.preventDefault();var p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;}
+  function onEnd(e){e.preventDefault();drawing=false;}
+  canvas.addEventListener('mousedown',onStart,{passive:false});
+  canvas.addEventListener('mousemove',onMove,{passive:false});
+  canvas.addEventListener('mouseup',onEnd,{passive:false});
+  canvas.addEventListener('mouseleave',onEnd,{passive:false});
+  canvas.addEventListener('touchstart',onStart,{passive:false});
+  canvas.addEventListener('touchmove',onMove,{passive:false});
+  canvas.addEventListener('touchend',onEnd,{passive:false});
+}
+
+function clearSigPad(id){var c=document.getElementById(id);if(!c)return;var ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,c.width,c.height);c.dataset.signed='0';var ph=document.getElementById(id+'_ph');if(ph)ph.style.display='';var key=KEY_MAP[id];if(key)updateSigStatus(key);}
+
+window.addEventListener('resize',function(){document.querySelectorAll('.sig-canvas').forEach(function(c){var w=c.parentElement.offsetWidth;if(w>0&&c.width!==w){var img=c.dataset.signed==='1'?c.toDataURL():null;c.width=w;var ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#1a2535';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';if(img){var i=new Image();i.onload=function(){ctx.drawImage(i,0,0,c.width,c.height);};i.src=img;}}});});
+
+async function buildPdfBlob(){
+  syncAll();
+  var wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-10000px;top:0;width:816px;background:#fff;z-index:-1;';
+  var html=buildPacketHtml(false);
+  var bodyMatch=html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  var styleMatch=html.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  if(styleMatch){var st=document.createElement('style');st.textContent=styleMatch[1];wrap.appendChild(st);}
+  var inner=document.createElement('div');
+  inner.innerHTML=bodyMatch?bodyMatch[1]:html;
+  wrap.appendChild(inner);
+  document.body.appendChild(wrap);
+  try{
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    await new Promise(function(r){setTimeout(r,200);});
+    var pages=wrap.querySelectorAll('.pdf-page');
+    if(!pages.length)throw new Error('buildPdfBlob: no .pdf-page elements rendered');
+    if(!(window.jspdf&&window.jspdf.jsPDF))throw new Error('buildPdfBlob: jsPDF 2.x not loaded');
+    var JsPDF=window.jspdf.jsPDF;
+    var pdf=new JsPDF({unit:'in',format:'letter',orientation:'portrait'});
+    for(var i=0;i<pages.length;i++){
+      var p=pages[i];p.style.width='816px';p.style.height='1056px';
+      var cv=await html2canvas(p,{scale:2,useCORS:true,allowTaint:true,logging:false,backgroundColor:'#ffffff'});
+      if(!cv||!cv.width||!cv.height)throw new Error('buildPdfBlob: empty canvas for page '+(i+1));
+      var img=cv.toDataURL('image/jpeg',0.92);
+      if(i>0)pdf.addPage('letter','portrait');
+      pdf.addImage(img,'JPEG',0,0,8.5,11,undefined,'FAST');
+    }
+    return pdf.output('blob');
+  }finally{
+    if(wrap.parentNode)wrap.parentNode.removeChild(wrap);
+  }
+}
+
+async function submitPacket(){
+  var unsigned=DOCS.filter(function(d){return !sigStatus[d.key];});
+  if(unsigned.length>0){alert('Please sign and confirm all documents before submitting.\n\nMissing:\n\u2022 '+unsigned.map(function(d){return d.label;}).join('\n\u2022 '));return;}
+  var btn=document.getElementById('submit-btn');
+  var statusEl=document.getElementById('submit-status');
+  if(btn){btn.disabled=true;btn.textContent='Building PDF\u2026';}
+  if(statusEl){statusEl.textContent='';statusEl.style.color='';}
+  try{
+    var pdfBlob=await buildPdfBlob();
+    var pdfBase64=await new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(reader.result.split(',')[1]);};reader.onerror=reject;reader.readAsDataURL(pdfBlob);});
+    var data=capturePacketData();
+    var nameSlug=(data.pt_name||'patient').replace(/[^a-zA-Z0-9]/g,'_');
+    var today=new Date();
+    var dateSlug=String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0')+'-'+today.getFullYear();
+    var pdfFilename='PainMed_SignaturePacket_'+nameSlug+'_'+dateSlug+'.pdf';
+    if(btn)btn.textContent='Sending\u2026';
+    var response=await fetch(PACKET_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json','x-api-secret':'SpineMed2026'},body:JSON.stringify({patientName:data.pt_name||'Patient',dateOfInjury:data.pt_dol||'',pdfBase64:pdfBase64,pdfFilename:pdfFilename})});
+    var rawText=await response.text();
+    var result;
+    try{result=JSON.parse(rawText);}catch(e){throw new Error('HTTP '+response.status+': '+rawText.slice(0,200));}
+    if(!response.ok||!result.success){
+      throw new Error('HTTP '+response.status+': '+(result.error||rawText.slice(0,200)||'unknown'));
+    }
+    if(btn){btn.textContent='\u2713 Submitted';btn.style.background='var(--green)';}
+    if(statusEl){statusEl.textContent='\u2713 Signature packet sent to front desk.';statusEl.style.color='var(--dgreen)';}
+  }catch(err){
+    console.error('submitPacket:',err);
+    if(btn){btn.disabled=false;btn.textContent='\u2713 Submit Signature Packet';}
+    if(statusEl){statusEl.textContent='Submission failed \u2014 '+(err&&err.message?err.message:String(err));statusEl.style.color='#c0392b';}
+  }
+}
+
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.pt-name-pop, .pt-today-pop, .sw-pop').forEach(function(el){
+    el.addEventListener('input', function(){el.dataset.userEdited='1';});
+  });
+  document.querySelectorAll('.pt-today-pop').forEach(function(el){
+    el.addEventListener('input', function(){fmtDate(el);});
+  });
+  var t=new Date();
+  var td=String(t.getMonth()+1).padStart(2,'0')+'/'+String(t.getDate()).padStart(2,'0')+'/'+t.getFullYear();
+  var tf=document.getElementById('pt_today');
+  if(tf&&!tf.value){tf.value=td;}
+  syncAll();
+  renderDots();
+  showStep(1);
+  initSigPads();
+});
+
+</script>
+
+</body></html>
