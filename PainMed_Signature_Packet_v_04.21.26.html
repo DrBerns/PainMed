@@ -1040,7 +1040,7 @@ async function exportPacketPdf(variant){
   document.body.removeChild(iframe);
 }
 
-const PACKET_WORKER_URL = 'https://cig-intake.drberns.workers.dev/packet-submit';
+const PACKET_WORKER_URL = 'https://spinemed-imap-worker.drberns.workers.dev/sendemail';
 const KEY_MAP = {'sig_hipaa_sig':'hipaa','sig_toa_sig':'toa','sig_iot_sig':'iot','sig_aob_sig':'aob','sig_rr1_sig':'rr1','sig_rr2_sig':'rr2','sig_fr_sig':'fr'};
 
 function getSigData(id){var c=document.getElementById(id);if(!c||c.dataset.signed!=='1')return null;return c.toDataURL('image/png');}
@@ -1129,7 +1129,7 @@ async function submitPacket(){
     var dateSlug=String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0')+'-'+today.getFullYear();
     var pdfFilename='PainMed_SignaturePacket_'+nameSlug+'_'+dateSlug+'.pdf';
     if(btn)btn.textContent='Sending\u2026';
-    var response=await fetch(PACKET_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({patientName:data.pt_name||'Patient',dateOfInjury:data.pt_dol||'',pdfBase64:pdfBase64,pdfFilename:pdfFilename})});
+    var response=await fetch(PACKET_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json','x-api-secret':'SpineMed2026'},body:JSON.stringify({patientName:data.pt_name||'Patient',dateOfInjury:data.pt_dol||'',pdfBase64:pdfBase64,pdfFilename:pdfFilename})});
     var rawText=await response.text();
     var result;
     try{result=JSON.parse(rawText);}catch(e){throw new Error('HTTP '+response.status+': '+rawText.slice(0,200));}
