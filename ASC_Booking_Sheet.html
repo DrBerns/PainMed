@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASC Booking Sheet — Tampa Bay Surgery Center</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #161b24;
+    --card-inner: #1e2433;
+    --border: #2a3040;
+    --green: #4ade80;
+    --blue: #60a5fa;
+    --purple: #818cf8;
+    --text: #e2e8f0;
+    --muted: #4a5568;
+    --dim: #374151;
+
+    /* TBSC form colors */
+    --tbsc-blue: #1a3a6b;
+    --tbsc-blue-light: #2a5298;
+    --tbsc-header-bg: #1a3a6b;
+    --tbsc-border: #2a5298;
+    --tbsc-form-bg: #ffffff;
+    --tbsc-label: #1a3a6b;
+    --tbsc-input-border: #aab4c8;
+    --tbsc-section-bg: #e8eef7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .back-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--blue);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: var(--card-inner); }
+  .page-title {
+    font-family: 'Georgia', serif;
+    font-size: 20px;
+    color: var(--text);
+    font-weight: normal;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Main layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    max-width: 1280px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  /* ── TBSC Form card ── */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  /* ── Printable form area ── */
+  #printable-form {
+    background: var(--tbsc-form-bg);
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    padding: 18px 20px;
+  }
+
+  .tbsc-header {
+    background: var(--tbsc-header-bg);
+    color: #fff;
+    text-align: center;
+    padding: 10px 16px;
+    margin: -18px -20px 14px;
+  }
+  .tbsc-header h1 {
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .tbsc-header .contact-line {
+    font-size: 11px;
+    margin-top: 3px;
+    opacity: 0.9;
+  }
+
+  .tbsc-checkrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    background: var(--tbsc-section-bg);
+    border: 1px solid var(--tbsc-border);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 10.5px;
+    color: var(--tbsc-label);
+    flex-wrap: wrap;
+  }
+  .tbsc-checkrow label { display: flex; align-items: center; gap: 4px; cursor: pointer; font-weight: bold; }
+  .tbsc-checkrow input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--tbsc-blue); }
+  .tbsc-checkrow .notice {
+    font-size: 10px;
+    color: #444;
+    margin-top: 4px;
+    width: 100%;
+    font-weight: normal;
+  }
+
+  /* Form grid */
+  .form-section {
+    margin-bottom: 10px;
+  }
+  .section-title {
+    background: var(--tbsc-header-bg);
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    margin-bottom: 6px;
+    border-radius: 2px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+  }
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 100px;
+  }
+  .form-field.full { flex: 100%; }
+  .form-field.w2 { flex: 2; }
+  .form-field.w3 { flex: 3; }
+
+  .form-field label {
+    font-size: 9px;
+    font-weight: bold;
+    color: var(--tbsc-label);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    border: 1px solid var(--tbsc-input-border);
+    border-radius: 3px;
+    padding: 4px 6px;
+    font-size: 11px;
+    font-family: Arial, sans-serif;
+    color: #111;
+    background: #fff;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-field input:focus,
+  .form-field textarea:focus,
+  .form-field select:focus {
+    border-color: var(--tbsc-blue-light);
+  }
+  .form-field textarea { resize: vertical; min-height: 40px; }
+
+  .sex-row { display: flex; gap: 16px; align-items: center; padding-top: 4px; }
+  .sex-row label { display: flex; align-items: center; gap: 4px; font-size: 11px; cursor: pointer; }
+  .sex-row input[type=radio] { accent-color: var(--tbsc-blue); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--tbsc-input-border);
+    margin: 10px 0;
+  }
+
+  /* ── Right column: sidebar widgets ── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+  .widget-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .widget-header {
+    background: var(--card-inner);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .widget-header .icon { font-size: 15px; }
+  .widget-header h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .widget-body { padding: 14px; }
+
+  /* Drop zone */
+  #drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 20px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--bg);
+  }
+  #drop-zone.dragover {
+    border-color: var(--blue);
+    background: rgba(96,165,250,0.06);
+  }
+  #drop-zone p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  #drop-zone .upload-icon { font-size: 28px; margin-bottom: 6px; }
+  #file-input { display: none; }
+
+  #attachment-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-inner);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .attachment-item .fname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .attachment-item .fsize { color: var(--muted); margin: 0 8px; font-size: 10px; }
+  .attachment-item .remove-btn {
+    background: none; border: none; color: #f87171; cursor: pointer; font-size: 14px; padding: 0 2px;
+  }
+
+  /* Email widget */
+  .email-field { margin-bottom: 10px; }
+  .email-field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .email-field input, .email-field textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'Georgia', serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .email-field input:focus, .email-field textarea:focus { border-color: var(--blue); }
+  .email-field textarea { resize: vertical; min-height: 80px; }
+
+  .send-btn {
+    width: 100%;
+    background: var(--tbsc-blue);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .send-btn:hover { background: var(--tbsc-blue-light); }
+  .send-btn:disabled { background: var(--dim); cursor: not-allowed; }
+
+  .status-msg {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
+  }
+  .status-msg.success { background: rgba(74,222,128,0.12); border: 1px solid var(--green); color: var(--green); }
+  .status-msg.error { background: rgba(248,113,113,0.12); border: 1px solid #f87171; color: #f87171; }
+
+  /* Spinner */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { order: -1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <a href="dashboard.html" class="back-btn">← Dashboard</a>
+  <span class="page-title">ASC Booking Sheet</span>
+</div>
+
+<div class="layout">
+
+  <!-- ══ LEFT: TBSC FORM ══ -->
+  <div class="form-card">
+    <div id="printable-form">
+
+      <!-- TBSC Header -->
+      <div class="tbsc-header">
+        <h1>Tampa Bay Surgery Center</h1>
+        <div class="contact-line">Scheduling Procedures &nbsp;|&nbsp; Phone: 813-908-8858 &nbsp;|&nbsp; Fax: 813-908-5705</div>
+      </div>
+
+      <!-- Location checkboxes + notice -->
+      <div class="tbsc-checkrow">
+        <label><input type="checkbox" id="loc-cass" checked> CASS</label>
+        <label><input type="checkbox" id="loc-midtown"> MIDTOWN</label>
+        <label><input type="checkbox" id="loc-uptown"> UPTOWN</label>
+        <span class="notice">☑ Information regarding Patient's Rights &amp; Responsibilities, Ownership in the Surgery Center and the Surgery Center's policy on Advanced Directives/Living Wills given to patient.</span>
+      </div>
+
+      <!-- Procedure Info -->
+      <div class="form-section">
+        <div class="section-title">Procedure Information</div>
+        <div class="form-row">
+          <div class="form-field w3">
+            <label>Surgeon</label>
+            <input type="text" id="surgeon" placeholder="">
+          </div>
+          <div class="form-field w2">
+            <label>Procedure Date</label>
+            <input type="date" id="proc-date">
+          </div>
+          <div class="form-field">
+            <label>Time</label>
+            <input type="time" id="proc-time">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field w3">
+            <label>Diagnosis &amp; Codes</label>
+            <input type="text" id="diag-codes" placeholder="">
+          </div>
+          <div class="form-field">
+            <label>Est. Time</label>
+            <input type="text" id="est-time" placeholder="e.g. 45 min">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label>Procedure &amp; Codes</label>
+            <input type="text" id="proc-codes" placeholder="">
+          </div>
+        </div>
+      </div>
+
+      <!-- Pre-Op Orders -->
+      <div class="form-section">
+        <div class="section-title">Pre-Op Orders (Physician Must Sign)</div>
+        <div class="form-row">
+          <div class="form-field full">
+            <textarea id="preop-orders" rows="3" placeholder="Enter pre-op orders here..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Special Items -->
+      <div class="form-section">
+        <div class="section-title">Special Implants, Supplies, Equipment, Instruments or X-Ray</div>
+        <div class="form-row">
+          <div class="form-field full">
+            <textarea id="special-items" rows="2" placeholder="List any special items required..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anesthesia -->
+      <div class="form-section">
+        <div class="section-title">Anesthesia</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Anesthesia</label>
+            <input type="text" id="anesthesia" value="Per TBSC">
+          </div>
+          <div class="form-field w2">
+            <label>Scheduled By</label>
+            <input type="text" id="anes-scheduled-by">
+          </div>
+          <div class="form-field">
+            <label>Date</label>
+            <input type="date" id="anes-date">
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Patient Info -->
+      <div class="form-section">
+        <div class="section-title">Patient Information</div>
+        <div class="form-row">
+          <div class="form-field w3">
+            <label>Patient Name</label>
+            <input type="text" id="patient-name" placeholder="Last, First MI">
+          </div>
+          <div class="form-field">
+            <label>Sex</label>
+            <div class="sex-row">
+              <label><input type="radio" name="sex" value="Male"> Male</label>
+              <label><input type="radio" name="sex" value="Female"> Female</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label>Address</label>
+            <input type="text" id="patient-address">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Date of Birth</label>
+            <input type="date" id="dob">
+          </div>
+          <div class="form-field">
+            <label>SS#</label>
+            <input type="text" id="ssn" placeholder="XXX-XX-XXXX" maxlength="11">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Phone (Home)</label>
+            <input type="tel" id="phone-home">
+          </div>
+          <div class="form-field">
+            <label>Phone (Work/Cell)</label>
+            <input type="tel" id="phone-cell">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field w2">
+            <label>Employer</label>
+            <input type="text" id="employer">
+          </div>
+          <div class="form-field w3">
+            <label>Employer Address</label>
+            <input type="text" id="employer-address">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label>Email Address</label>
+            <input type="email" id="patient-email">
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Attorney / Insurance -->
+      <div class="form-section">
+        <div class="section-title">Attorney / Insurance Information</div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label>Attorney Information</label>
+            <input type="text" id="atty-info">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field w3">
+            <label>Primary Insurance</label>
+            <input type="text" id="ins-primary">
+          </div>
+          <div class="form-field w2">
+            <label>Phone #</label>
+            <input type="tel" id="ins-primary-phone">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label>Claims Address</label>
+            <input type="text" id="ins-claims-addr">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>ID #</label>
+            <input type="text" id="ins-id">
+          </div>
+          <div class="form-field">
+            <label>Group #</label>
+            <input type="text" id="ins-group">
+          </div>
+          <div class="form-field w2">
+            <label>Insured</label>
+            <input type="text" id="ins-insured">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Claim #</label>
+            <input type="text" id="claim-num">
+          </div>
+          <div class="form-field w2">
+            <label>Adjuster</label>
+            <input type="text" id="adjuster">
+          </div>
+          <div class="form-field">
+            <label>DOI</label>
+            <input type="date" id="doi">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Verify Date</label>
+            <input type="date" id="verify-date">
+          </div>
+          <div class="form-field w2">
+            <label>By</label>
+            <input type="text" id="verified-by">
+          </div>
+          <div class="form-field">
+            <label>EFF</label>
+            <input type="text" id="eff-date">
+          </div>
+          <div class="form-field">
+            <label>Ded/Co-pay</label>
+            <input type="text" id="ded-copay">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field w3">
+            <label>Secondary Insurance</label>
+            <input type="text" id="ins-secondary">
+          </div>
+          <div class="form-field w2">
+            <label>Phone #</label>
+            <input type="tel" id="ins-secondary-phone">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field full">
+            <label>Claims Address</label>
+            <input type="text" id="ins-secondary-claims">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>ID #</label>
+            <input type="text" id="ins-secondary-id">
+          </div>
+          <div class="form-field">
+            <label>Group #</label>
+            <input type="text" id="ins-secondary-group">
+          </div>
+          <div class="form-field w2">
+            <label>Insured</label>
+            <input type="text" id="ins-secondary-insured">
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- PCP / Pre-Op Appt -->
+      <div class="form-section">
+        <div class="section-title">Primary Care Physician &amp; Pre-Op</div>
+        <div class="form-row">
+          <div class="form-field w3">
+            <label>Primary Care Physician</label>
+            <input type="text" id="pcp">
+          </div>
+          <div class="form-field w2">
+            <label>Phone #</label>
+            <input type="tel" id="pcp-phone">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Pre-Op Appt Date</label>
+            <input type="date" id="preop-date">
+          </div>
+          <div class="form-field">
+            <label>Time</label>
+            <input type="time" id="preop-time">
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /printable-form -->
+  </div><!-- /form-card -->
+
+  <!-- ══ RIGHT: SIDEBAR ══ -->
+  <div class="sidebar">
+
+    <!-- Attachments widget -->
+    <div class="widget-card">
+      <div class="widget-header">
+        <span class="icon">📎</span>
+        <h3>Attachments</h3>
+      </div>
+      <div class="widget-body">
+        <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon">📄</div>
+          <p><strong>Drop PDFs here</strong><br>or click to browse</p>
+        </div>
+        <input type="file" id="file-input" accept=".pdf" multiple>
+        <div id="attachment-list"></div>
+      </div>
+    </div>
+
+    <!-- Email widget -->
+    <div class="widget-card">
+      <div class="widget-header">
+        <span class="icon">✉️</span>
+        <h3>Send Booking Sheet</h3>
+      </div>
+      <div class="widget-body">
+        <div class="email-field">
+          <label>To</label>
+          <input type="email" id="email-to" placeholder="recipient@surgicenter.com">
+        </div>
+        <div class="email-field">
+          <label>Subject</label>
+          <input type="text" id="email-subject" placeholder="Auto-filled from patient name">
+        </div>
+        <div class="email-field">
+          <label>Message Preview</label>
+          <textarea id="email-body" rows="5" readonly></textarea>
+        </div>
+        <button class="send-btn" id="send-btn" onclick="handleSend()">
+          <div class="spinner" id="spinner"></div>
+          <span id="send-label">📤 Send Booking Sheet</span>
+        </button>
+        <div class="status-msg" id="status-msg"></div>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+</div><!-- /layout -->
+
+<script>
+// ── Config ──────────────────────────────────────────
+const WORKER_URL = 'https://spinemed-imap-worker.drberns.workers.dev';
+const API_SECRET = 'SpineMed2026';
+const FROM_EMAIL = 'scheduling@painmedpros.com';
+const REPLY_TO   = 'scheduling@painmedpros.com';
+
+// ── Attachment handling ──────────────────────────────
+const attachedFiles = []; // { name, size, base64, type }
+
+const dropZone   = document.getElementById('drop-zone');
+const fileInput  = document.getElementById('file-input');
+const attachList = document.getElementById('attachment-list');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    if (file.type !== 'application/pdf') return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      attachedFiles.push({ name: file.name, size: file.size, base64, type: 'application/pdf' });
+      renderAttachments();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderAttachments() {
+  attachList.innerHTML = '';
+  attachedFiles.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'attachment-item';
+    item.innerHTML = `
+      <span class="fname">📄 ${f.name}</span>
+      <span class="fsize">${(f.size/1024).toFixed(0)} KB</span>
+      <button class="remove-btn" onclick="removeAttachment(${i})">✕</button>`;
+    attachList.appendChild(item);
+  });
+}
+
+function removeAttachment(i) {
+  attachedFiles.splice(i, 1);
+  renderAttachments();
+}
+
+// ── Auto-fill email subject + body ───────────────────
+document.getElementById('patient-name').addEventListener('input', updateEmailPreview);
+
+function getPatientName() {
+  return document.getElementById('patient-name').value.trim() || 'our patient';
+}
+
+function updateEmailPreview() {
+  const name = getPatientName();
+  document.getElementById('email-subject').value =
+    `ASC Booking — ${name === 'our patient' ? '[Patient Name]' : name}`;
+  document.getElementById('email-body').value =
+    `Hello,\n\nPlease find attached the booking sheet for ${name}. Any supporting documentation is also attached.\n\nPlease contact our office if you need any additional information. Otherwise, please respond confirming this patient's booking.\n\nThank you.`;
+}
+updateEmailPreview();
+
+// ── PDF generation ───────────────────────────────────
+async function generateBookingPDF() {
+  const { jsPDF } = window.jspdf;
+  const form = document.getElementById('printable-form');
+
+  // Temporarily make inputs show their values as text for rendering
+  const inputs = form.querySelectorAll('input, textarea, select');
+  const origStyles = [];
+  inputs.forEach(el => {
+    origStyles.push(el.style.cssText);
+  });
+
+  const canvas = await html2canvas(form, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+    onclone: (doc) => {
+      // Ensure checkboxes render in clone
+      doc.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        if (cb.checked) cb.setAttribute('checked', 'checked');
+      });
+      doc.querySelectorAll('input[type=radio]').forEach(rb => {
+        if (rb.checked) rb.setAttribute('checked', 'checked');
+      });
+    }
+  });
+
+  const imgData   = canvas.toDataURL('image/jpeg', 0.92);
+  const pageW     = 210; // A4 mm
+  const pageH     = 297;
+  const margin    = 10;
+  const usableW   = pageW - margin * 2;
+  const imgW      = canvas.width;
+  const imgH      = canvas.height;
+  const ratio     = usableW / (imgW / 2); // account for scale:2
+  const totalH    = (imgH / 2) * ratio;
+
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  let yOffset = 0;
+  let pageNum = 0;
+
+  while (yOffset < totalH) {
+    if (pageNum > 0) pdf.addPage();
+    const sliceH  = Math.min(pageH - margin * 2, totalH - yOffset);
+    const srcY    = (yOffset / ratio) * 2;
+    const srcH    = (sliceH / ratio) * 2;
+
+    // Slice canvas
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width  = imgW;
+    sliceCanvas.height = srcH;
+    const ctx = sliceCanvas.getContext('2d');
+    ctx.drawImage(canvas, 0, srcY, imgW, srcH, 0, 0, imgW, srcH);
+    const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+
+    pdf.addImage(sliceData, 'JPEG', margin, margin, usableW, sliceH);
+    yOffset += sliceH;
+    pageNum++;
+  }
+
+  return pdf.output('datauristring').split(',')[1]; // base64 only
+}
+
+// ── Email signature HTML ─────────────────────────────
+function buildEmailHTML(patientName) {
+  const body = document.getElementById('email-body').value
+    .replace(/\n/g, '<br>');
+
+  return `
+<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;font-size:14px;color:#222;max-width:680px;margin:0 auto;">
+<p>${body}</p>
+<br>
+<table cellpadding="0" cellspacing="0" style="border-top:2px solid #1a3a6b;padding-top:12px;margin-top:16px;width:100%;">
+  <tr>
+    <td>
+      <div style="font-family:'Georgia',serif;font-size:18px;font-weight:bold;letter-spacing:0.04em;">
+        <span style="color:#1a3a6b;">Pain</span><span style="color:#2a5298;">Med</span><span style="color:#4ade80;"> Pros</span>
+      </div>
+      <div style="font-size:12px;color:#444;margin-top:4px;line-height:1.7;">
+        3010 East 138th Avenue, Tampa, Florida 33613<br>
+        <strong>P:</strong> 813-668-0000 &nbsp;|&nbsp; <strong>F:</strong> 813-668-2978<br>
+        <strong>E:</strong> <a href="mailto:scheduling@painmedpros.com" style="color:#2a5298;">scheduling@painmedpros.com</a>
+      </div>
+    </td>
+  </tr>
+</table>
+<br>
+<table cellpadding="0" cellspacing="0" style="background:#f5f7fa;border:1px solid #dde3ed;border-radius:4px;padding:10px 14px;margin-top:10px;width:100%;">
+  <tr><td style="font-size:10px;color:#666;line-height:1.6;">
+    <strong>CONFIDENTIALITY &amp; HIPAA NOTICE:</strong> This electronic message transmission contains information from PainMed Pros that may be confidential or privileged. The information is intended solely for the individual or entity named above and access to this message by anyone else is unauthorized. If you are not the intended recipient, any disclosure, copying, distribution or use of the contents of this information is prohibited and may be unlawful. If you have received this electronic transmission in error, please reply immediately to the sender that you have received the message in error, and delete it. Thank you.
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+// ── Send handler ─────────────────────────────────────
+async function handleSend() {
+  const toAddr = document.getElementById('email-to').value.trim();
+  const subject = document.getElementById('email-subject').value.trim();
+  const patientName = getPatientName();
+
+  if (!toAddr) { showStatus('error', 'Please enter a recipient email address.'); return; }
+
+  const btn     = document.getElementById('send-btn');
+  const spinner = document.getElementById('spinner');
+  const label   = document.getElementById('send-label');
+
+  btn.disabled     = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Generating PDF…';
+  showStatus('', '');
+
+  try {
+    // 1. Generate booking sheet PDF
+    const bookingPdfBase64 = await generateBookingPDF();
+    const patientSlug = patientName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const bookingFilename = `TBSC_Booking_${patientSlug}.pdf`;
+
+    // 2. Build attachments array: booking sheet first, then any extras
+    const attachments = [
+      { filename: bookingFilename, content: bookingPdfBase64, content_type: 'application/pdf' }
+    ];
+    attachedFiles.forEach(f => {
+      attachments.push({ filename: f.name, content: f.base64, content_type: 'application/pdf' });
+    });
+
+    // 3. Build email HTML
+    const htmlBody = buildEmailHTML(patientName);
+
+    label.textContent = 'Sending…';
+
+    // 4. Call worker /sendemail
+    const resp = await fetch(`${WORKER_URL}/sendemail`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-secret': API_SECRET
+      },
+      body: JSON.stringify({
+        to: toAddr,
+        subject,
+        html: htmlBody,
+        patientName,
+        attachments,
+        replyTo: REPLY_TO
+      })
+    });
+
+    const data = await resp.json();
+    if (data.success) {
+      showStatus('success', `✓ Booking sheet sent successfully to ${toAddr}`);
+    } else {
+      showStatus('error', `Send failed: ${data.error || 'Unknown error'}`);
+    }
+  } catch (err) {
+    showStatus('error', `Error: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = '📤 Send Booking Sheet';
+  }
+}
+
+function showStatus(type, msg) {
+  const el = document.getElementById('status-msg');
+  el.className = 'status-msg' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+// ── SSN auto-format ───────────────────────────────────
+document.getElementById('ssn').addEventListener('input', function() {
+  let v = this.value.replace(/\D/g,'');
+  if (v.length > 3 && v.length <= 5) v = v.slice(0,3)+'-'+v.slice(3);
+  else if (v.length > 5) v = v.slice(0,3)+'-'+v.slice(3,5)+'-'+v.slice(5,9);
+  this.value = v;
+});
+
+// Location checkboxes — only one at a time
+['loc-cass','loc-midtown','loc-uptown'].forEach(id => {
+  document.getElementById(id).addEventListener('change', function() {
+    if (this.checked) {
+      ['loc-cass','loc-midtown','loc-uptown'].forEach(other => {
+        if (other !== id) document.getElementById(other).checked = false;
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>
