@@ -228,6 +228,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--lgray);color:#1a2535;min-
         <div class="f s2"><label>Patient Full Legal Name <span class="req">*</span></label><input class="fi" id="pt_name" placeholder="First Middle Last" oninput="syncAll()"></div>
         <div class="f"><label>Date of Birth <span class="req">*</span></label><input class="fi" id="pt_dob" placeholder="MM-DD-YYYY" oninput="fmtDate(this);syncAll()" maxlength="10"></div>
       </div>
+      <div class="fg" style="margin-top:14px;">
+        <div class="f"><label>Patient Email Address</label><input class="fi" id="pt_email" placeholder="patient@email.com" oninput="syncAll()"></div>
+      </div>
       <div class="fg g2" style="margin-top:14px;">
         <div class="f"><label>Date of Loss (Accident Date) <span class="req">*</span></label><input class="fi" id="pt_dol" placeholder="MM-DD-YYYY" oninput="fmtDate(this);syncAll()" maxlength="10"></div>
         <div class="f"><label>Today's Date <span class="req">*</span></label><input class="fi" id="pt_today" placeholder="MM-DD-YYYY" oninput="fmtDate(this);syncAll()" maxlength="10"></div>
@@ -900,6 +903,7 @@ function capturePacketData(){
   var prov=selectedProvider?PROVIDERS[selectedProvider]:null;
   return {
     pt_name:v('pt_name'),pt_dob:v('pt_dob'),pt_dol:v('pt_dol'),pt_today:v('pt_today'),
+    pt_email:v('pt_email'),
     office:off,provider:prov,
     atty:{none:noAtty,firm:v('atty_firm'),name:v('atty_name'),phone:v('atty_phone'),fax:v('atty_fax'),email:v('atty_email'),addr:v('atty_addr')},
     ins:{none:noIns,carrier:v('ins_carrier'),claim:v('ins_claim')},
@@ -1113,6 +1117,63 @@ async function buildPdfBlob(){
   }
 }
 
+async function buildHipaaPdfBlob(){
+  syncAll();
+  var d=capturePacketData();
+  var wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-10000px;top:0;width:816px;background:#fff;z-index:-1;';
+  var st=document.createElement('style');st.textContent=buildPdfCss(false);wrap.appendChild(st);
+  var pageHtml='<div class="pdf-page">'+renderHeader(d)
+    +'<div class="pg-title">Notice of Privacy Practices</div>'
+    +'<div class="pg-sub">Suncoast Physical Medicine, LLC D/B/A PainMed</div>'
+    +'<div class="pg-body" style="font-size:9.5pt;line-height:1.35;">'
+    +'<h3 style="font-size:10.5pt;">Our Pledge Regarding Your Health Information</h3>'
+    +'<p>We are required by federal and Florida law to maintain the privacy of your protected health information (PHI), to provide you with this Notice of our legal duties and privacy practices, and to follow the terms of the Notice currently in effect. We reserve the right to change this Notice and to make the revised Notice effective for all PHI we maintain. A current copy of this Notice will be posted in our offices and available on request.</p>'
+    +'<h3 style="font-size:10.5pt;">How We May Use and Disclose Your Health Information Without Your Authorization</h3>'
+    +'<p><strong>Treatment.</strong> We may use and disclose your PHI to provide, coordinate, or manage your healthcare — for example, sharing records with a referring physician, hospital, imaging center, or specialist involved in your care.</p>'
+    +'<p><strong>Payment.</strong> We may use and disclose your PHI to bill and collect payment from you, your insurance company (including auto/PIP carriers), or other responsible third parties involved in payment for your care, including attorneys when applicable to your case.</p>'
+    +'<p><strong>Healthcare Operations.</strong> We may use and disclose your PHI for quality assessment, staff training, credentialing, licensing, audits, legal services, and other business activities necessary to run our practice.</p>'
+    +'<p><strong>Appointment Reminders &amp; Health-Related Communications.</strong> We may contact you by phone, text, email, or mail regarding appointments, treatment alternatives, or other health-related information. These communications may not be secure.</p>'
+    +'<p><strong>As Required or Permitted by Law.</strong> We may use or disclose your PHI without your authorization when required by court order, public health activities, workers’ compensation, law enforcement, or health oversight agencies.</p>'
+    +'<p>All other uses and disclosures require your written authorization, which you may revoke at any time in writing. We will never sell your PHI or use it for marketing without your authorization.</p>'
+    +'<h3 style="font-size:10.5pt;">Your Rights Regarding Your Health Information</h3>'
+    +'<p>You have the right to inspect and copy your health information, request amendments, request an accounting of disclosures, request restrictions, request confidential communications, receive a paper copy of this Notice, and be notified of any breach of your unsecured PHI.</p>'
+    +'<h3 style="font-size:10.5pt;">How to File a Complaint</h3>'
+    +'<p>If you believe your privacy rights have been violated, you may file a complaint with our Privacy Officer or with the U.S. Department of Health and Human Services, Office for Civil Rights at www.hhs.gov/ocr.</p>'
+    +'<h3 style="font-size:10.5pt;">Contact Information</h3>'
+    +'<p><strong>Privacy Officer — Suncoast Physical Medicine, LLC D/B/A PainMed</strong></p>'
+    +'<p><strong>PainMed (138th Ave):</strong> 3010 E. 138th Ave, Ste 300, Tampa, FL 33613 · Ph: 813-668-0000 · Fax: 813-668-2978</p>'
+    +'<p><strong>Email:</strong> info@painmedpros.com</p>'
+    +'</div>'
+    +'<div class="ver-stamp"><span>Notice of Privacy Practices · v_04.13.26</span><span>Suncoast Physical Medicine, LLC D/B/A PainMed</span></div>'
+    +'</div>';
+  var inner=document.createElement('div');inner.innerHTML=pageHtml;wrap.appendChild(inner);
+  document.body.appendChild(wrap);
+  try{
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    await new Promise(function(r){setTimeout(r,200);});
+    var pages=wrap.querySelectorAll('.pdf-page');
+    if(!pages.length)throw new Error('buildHipaaPdfBlob: no .pdf-page rendered');
+    if(!(window.jspdf&&window.jspdf.jsPDF))throw new Error('buildHipaaPdfBlob: jsPDF 2.x not loaded');
+    var JsPDF=window.jspdf.jsPDF;
+    var pdf=new JsPDF({unit:'in',format:'letter',orientation:'portrait'});
+    var p=pages[0];p.style.width='816px';p.style.height='1056px';
+    var cv=await html2canvas(p,{scale:2,useCORS:true,allowTaint:true,logging:false,backgroundColor:'#ffffff'});
+    if(!cv||!cv.width||!cv.height)throw new Error('buildHipaaPdfBlob: empty canvas');
+    var img=cv.toDataURL('image/jpeg',0.92);
+    pdf.addImage(img,'JPEG',0,0,8.5,11,undefined,'FAST');
+    var blob=pdf.output('blob');
+    return await new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){resolve(reader.result.split(',')[1]);};
+      reader.onerror=reject;
+      reader.readAsDataURL(blob);
+    });
+  }finally{
+    if(wrap.parentNode)wrap.parentNode.removeChild(wrap);
+  }
+}
+
 async function submitPacket(){
   var unsigned=DOCS.filter(function(d){return !sigStatus[d.key];});
   if(unsigned.length>0){alert('Please sign and confirm all documents before submitting.\n\nMissing:\n\u2022 '+unsigned.map(function(d){return d.label;}).join('\n\u2022 '));return;}
@@ -1136,8 +1197,36 @@ async function submitPacket(){
     if(!response.ok||!result.success){
       throw new Error('HTTP '+response.status+': '+(result.error||rawText.slice(0,200)||'unknown'));
     }
+    var ptEmail=(data.pt_email||'').trim();
+    var hipaaSent=false;
+    if(ptEmail){
+      try{
+        if(btn)btn.textContent='Sending HIPAA\u2026';
+        var hipaaPdfBase64=await buildHipaaPdfBlob();
+        var hipaaBody={
+          to:ptEmail,
+          subject:'Your PainMed Privacy Notice (HIPAA)',
+          html:'<p>Dear '+(data.pt_name||'Patient')+',</p><p>Thank you for visiting PainMed. Attached is a copy of our Notice of Privacy Practices for your records.</p><p>If you have any questions, please contact us at info@painmedpros.com or 813-668-0000.</p><p>PainMed</p>',
+          pdfBase64:hipaaPdfBase64,
+          pdfFilename:'PainMed_HIPAA_Notice.pdf'
+        };
+        var hipaaResp=await fetch(PACKET_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json','x-api-secret':'SpineMed2026'},body:JSON.stringify(hipaaBody)});
+        var hipaaText=await hipaaResp.text();
+        var hipaaResult={};
+        try{hipaaResult=JSON.parse(hipaaText);}catch(e){}
+        if(hipaaResp.ok&&hipaaResult.success){hipaaSent=true;}
+        else{console.error('HIPAA patient email failed:','HTTP '+hipaaResp.status+': '+(hipaaResult.error||hipaaText.slice(0,200)));}
+      }catch(hipaaErr){
+        console.error('HIPAA patient email error:',hipaaErr);
+      }
+    }
     if(btn){btn.textContent='\u2713 Submitted';btn.style.background='var(--green)';}
-    if(statusEl){statusEl.textContent='\u2713 Signature packet sent to front desk.';statusEl.style.color='var(--dgreen)';}
+    if(statusEl){
+      statusEl.textContent=hipaaSent
+        ?'\u2713 Signature packet sent to front desk. HIPAA Privacy Notice emailed to patient.'
+        :'\u2713 Signature packet sent to front desk.';
+      statusEl.style.color='var(--dgreen)';
+    }
   }catch(err){
     console.error('submitPacket:',err);
     if(btn){btn.disabled=false;btn.textContent='\u2713 Submit Signature Packet';}
